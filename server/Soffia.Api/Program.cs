@@ -231,7 +231,7 @@ app.MapPost("/api/decks/import", async (DeckImportRequest request, DeckStore sto
             continue;
         }
 
-        var validation = DeckValidator.Validate(upload.Markdown);
+        var validation = DeckValidator.Validate(upload.Markdown, allowPlain: true);
         if (!validation.Ok)
         {
             results.Add(new ImportedDeckResult
@@ -279,7 +279,7 @@ app.MapPut("/api/decks/{id}", async (string id, DeckUpload upload, DeckStore sto
     var uploadErrors = UploadValidation.Validate(upload);
     if (uploadErrors.Count > 0) return Results.BadRequest(new { errors = uploadErrors });
 
-    var validation = DeckValidator.Validate(upload.Markdown);
+    var validation = DeckValidator.Validate(upload.Markdown, allowPlain: true);
     if (!validation.Ok) return Results.BadRequest(new { errors = validation.Errors, warnings = validation.Warnings });
     if (!string.Equals(validation.Id, id, StringComparison.Ordinal))
         return Results.BadRequest(new { error = "El id del frontmatter no coincide con la ruta." });
