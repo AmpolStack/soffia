@@ -30,7 +30,7 @@ public static partial class DeckValidator
         return !ReservedWindowsNames.Contains(stem);
     }
 
-    public static DeckValidationResult Validate(string markdown)
+    public static DeckValidationResult Validate(string markdown, bool allowPlain = false)
     {
         var errors = new List<ValidationMessage>();
         var warnings = new List<ValidationMessage>();
@@ -38,10 +38,12 @@ public static partial class DeckValidator
         var lines = normalized.Split('\n');
         var bodyStart = 0;
         Dictionary<string, object?>? frontmatter = null;
+        var hasFrontmatter = lines.Length > 0 && lines[0].Trim() == "---";
 
-        if (lines.Length == 0 || lines[0].Trim() != "---")
+        if (!hasFrontmatter)
         {
-            errors.Add(new(null, "Falta el frontmatter YAML: el archivo debe empezar por ---.", "error"));
+            if (!allowPlain)
+                errors.Add(new(null, "Falta el frontmatter YAML: el archivo debe empezar por ---.", "error"));
         }
         else
         {
@@ -80,10 +82,6 @@ public static partial class DeckValidator
         var language = GetString(frontmatter, "language") ?? "es";
         var author = GetString(frontmatter, "author");
         var tags = GetList(frontmatter, "tags");
-        if (string.IsNullOrWhiteSpace(id)) errors.Add(new(1, "Falta id en el frontmatter.", "error"));
-        else if (!IsValidId(id))
-            errors.Add(new(1, "El id no es válido: usa letras, números, guiones, puntos o guiones bajos (máximo 64), sin barras, espacios ni secuencias '..'.", "error"));
-        if (string.IsNullOrWhiteSpace(title)) errors.Add(new(1, "Falta title en el frontmatter.", "error"));
         if (frontmatter is not null && !frontmatter.ContainsKey("description"))
             warnings.Add(new(1, "Falta description en el frontmatter.", "warning"));
 
@@ -138,6 +136,21 @@ public static partial class DeckValidator
             if (level <= 3 && ManualNumbering().IsMatch(text))
                 warnings.Add(new(lineNumber, "El encabezado incluye numeración manual.", "warning"));
         }
+
+        if (allowPlain && !hasFrontmatter)
+        {
+            var h1 = headings.FirstOrDefault(heading => heading.Level == 1);
+            if (string.IsNullOrWhiteSpace(title)) title = h1.Text;
+            if (string.IsNullOrWhiteSpace(id) && !string.IsNullOrWhiteSpace(title))
+            {
+                var slug = FileNaming.Slugify(title);
+                id = string.IsNullOrWhiteSpace(slug) ? "deck" : slug;
+            }
+        }
+        if (string.IsNullOrWhiteSpace(id)) errors.Add(new(1, "Falta id en el frontmatter.", "error"));
+        else if (!IsValidId(id))
+            errors.Add(new(1, "El id no es válido: usa letras, números, guiones, puntos o guiones bajos (máximo 64), sin barras, espacios ni secuencias '..'.", "error"));
+        if (string.IsNullOrWhiteSpace(title)) errors.Add(new(1, "Falta title en el frontmatter.", "error"));
 
         if (stack.Count > 0)
         {
