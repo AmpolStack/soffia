@@ -1,0 +1,3 @@
+# Cloudflare Pages: SPA fallback para BrowserRouter.
+# Las rutas /api/* las atiende functions/api/[[path]].js antes que este archivo.
+/* /index.html 200
