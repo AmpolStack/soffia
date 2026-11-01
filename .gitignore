@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-cloud/
+dist-single/
+*.local
+
+# Generated files
+public/llms.txt
+
+# .NET
+server/**/bin/
+server/**/obj/
+server/**/TestResults/
+server/Soffia.Api/data/
+
+# Environment and secrets
+.env
+.env.*
+!.env.cloud
+!.env.example
+
+# Private study notes
+farmacos-anticonvulsivantes.md
+
+# Editor and operating system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Tooling caches
+coverage/
+*.tsbuildinfo
