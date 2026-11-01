@@ -80,6 +80,17 @@ public class DeckValidatorTests
     }
 
     [Fact]
+    public void Validate_RechazaYamlInvalido()
+    {
+        var broken = ValidDeck.Replace(
+            "description: Un deck mínimo para comprobar el contrato del servidor.",
+            "description: Un deck con dos puntos: sin comillas");
+        var result = DeckValidator.Validate(broken);
+        Assert.False(result.Ok);
+        Assert.Contains(result.Errors, error => error.Message.Contains("YAML"));
+    }
+
+    [Fact]
     public void Validate_RechazaBloquesSinCerrar()
     {
         var broken = ValidDeck.Replace("""

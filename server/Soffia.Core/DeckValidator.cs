@@ -68,7 +68,7 @@ public static partial class DeckValidator
                 }
                 catch (Exception error)
                 {
-                    errors.Add(new(1, "No se pudo leer el YAML: " + error.Message, "error"));
+                    errors.Add(new(1, "No se pudo leer el YAML: " + error.Message + " Entre comillas los valores que contengan dos puntos seguidos de espacio o caracteres especiales.", "error"));
                 }
             }
         }
