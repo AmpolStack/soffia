@@ -87,16 +87,25 @@ npm run test:mcp
 
 ## Configurar en OpenCode
 
-Añade a tu `opencode.json` (global o del proyecto):
+OpenCode V2 usa `mcp.servers`. La opción recomendada es la CLI, porque conserva el resto de la configuración:
+
+```bash
+opencode mcp add soffia --global -- node "/ruta/absoluta/a/soffia/mcp/soffia-server.mjs"
+opencode mcp list
+```
+
+También puedes editar `~/.config/opencode/opencode.jsonc` (global) o el `opencode.jsonc` del proyecto:
 
 ```json
 {
   "$schema": "https://opencode.ai/config.json",
   "mcp": {
-    "soffia": {
-      "type": "local",
-      "command": ["node", "C:/Users/htrsa/Desktop/diataxis/mcp/soffia-server.mjs"],
-      "enabled": true
+    "servers": {
+      "soffia": {
+        "type": "local",
+        "command": ["node", "C:/Users/htrsa/Desktop/diataxis/mcp/soffia-server.mjs"],
+        "cwd": "C:/Users/htrsa/Desktop/diataxis"
+      }
     }
   }
 }
@@ -105,12 +114,17 @@ Añade a tu `opencode.json` (global o del proyecto):
 Si el workspace ya es la raíz de este proyecto, puedes usar una ruta relativa:
 
 ```json
-"command": ["node", "mcp/soffia-server.mjs"]
+"command": ["node", "mcp/soffia-server.mjs"],
+"cwd": "."
 ```
 
-Después reinicia OpenCode y pide algo como:
+`cwd` es opcional. Se recomienda apuntar a la raíz del repositorio para que `soffia_save_decks` con destino `cwd` guarde en un lugar predecible. Usa `disabled: true` solo si quieres dejar el servidor configurado sin conectarlo; no uses `enabled`, que pertenece a la configuración antigua.
+
+OpenCode V2 recarga la configuración al guardar. Si hace falta, usa `/reload` y comprueba el estado con `opencode mcp list` o `/mcps`. Después pide algo como:
 
 > Usa la herramienta soffia para crear un deck sobre cambio climático, con imágenes web y referencias verificables.
+
+La guía completa desde cero, incluido un prompt para que OpenCode instale y conecte todo, está en el [README principal](../README.md#servidor-mcp-para-opencode).
 
 ## Configurar en Claude Desktop
 
