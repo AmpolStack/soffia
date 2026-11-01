@@ -8,6 +8,42 @@
 
 soffia convierte apuntes, seminarios y guías en Markdown en una experiencia de lectura y repaso: índice navegable, secciones plegables, quizzes, tarjetas con repaso espaciado, preguntas abiertas, imágenes ampliables y estadísticas de progreso. Funciona **local-first** y también puede desplegarse como una **nube privada de un solo usuario**.
 
+## Tabla de contenido
+
+- [Qué resuelve](#qué-resuelve)
+- [Qué hace](#qué-hace)
+- [Arquitectura](#arquitectura)
+  - [Local-first](#local-first)
+  - [Nube privada](#nube-privada)
+- [Requisitos](#requisitos)
+- [Replicarlo en local](#replicarlo-en-local)
+  - [Login local](#login-local)
+  - [Builds](#builds)
+  - [API local opcional](#api-local-opcional)
+- [Formato para agentes](#formato-para-agentes)
+- [Servidor MCP para OpenCode](#servidor-mcp-para-opencode)
+  - [Requisitos del MCP](#requisitos-del-mcp)
+  - [Instalación manual](#instalación-manual)
+  - [Conectarlo a OpenCode](#conectarlo-a-opencode)
+  - [Pedirle a OpenCode que lo haga](#pedirle-a-opencode-que-lo-haga)
+  - [Comprobar la conexión](#comprobar-la-conexión)
+  - [Solución de problemas](#solución-de-problemas)
+- [Uso](#uso)
+  - [Importar](#importar)
+  - [Etiquetas](#etiquetas)
+  - [Tablas](#tablas)
+  - [Imágenes](#imágenes)
+  - [Índice](#índice)
+  - [Imprimir](#imprimir)
+- [Subirlo a la nube](#subirlo-a-la-nube)
+- [Tests](#tests)
+- [Scripts](#scripts)
+- [Estructura](#estructura)
+- [Seguridad y privacidad](#seguridad-y-privacidad)
+- [Limitaciones](#limitaciones)
+- [Licencia](#licencia)
+- [Créditos](#créditos)
+
 ## Qué resuelve
 
 Estudiar desde apuntes suele terminar en PDFs largos, pestañas abiertas y repaso pasivo. soffia reúne el contenido y la práctica en el mismo lugar:
