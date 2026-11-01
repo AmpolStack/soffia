@@ -1,0 +1,87 @@
+{
+  "format": "soffia-deck",
+  "version": "1.2",
+  "frontmatter": {
+    "requiredRecommended": ["id", "title", "description", "tags", "language", "estimatedMinutes"],
+    "optional": ["subtitle", "author", "cover"],
+    "idPattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+    "idRule": "Stable slug. Safe for storage: letters, numbers, dots, underscores or hyphens (max 64), with no slashes, spaces or '..'. The lowercase hyphenated pattern is recommended.",
+    "tags": "array of strings",
+    "cover": "https:// URL or local relative path"
+  },
+  "structure": {
+    "h1": "exactly one; deck title",
+    "h2": "main section; indexed; accordion",
+    "h3": "subsection of previous h2; accordion",
+    "h4h6": "internal heading; not indexed",
+    "numbering": "do not write numbers in headings; app auto-numbers",
+    "html": false
+  },
+  "directives": {
+    "callout": {
+      "aliases": ["note", "quote"],
+      "attrs": {
+        "type": ["why", "tip", "warning", "key", "info", "pearl", "quote"],
+        "title": "string",
+        "collapsible": "boolean"
+      },
+      "children": true
+    },
+    "grid": {
+      "attrs": { "columns": "1-3" },
+      "children": true
+    },
+    "steps": {
+      "structure": "H3 per step",
+      "children": true
+    },
+    "quiz": {
+      "attrs": { "id": "string", "multiple": "boolean", "difficulty": "1-5", "tags": "comma list" },
+      "options": "- [ ] incorrect; - [x] correct",
+      "requiresExplanation": true,
+      "children": false
+    },
+    "flashcards": {
+      "attrs": { "id": "string" },
+      "separator": "---",
+      "card": "H3 front then Markdown back",
+      "children": false
+    },
+    "qa": {
+      "attrs": { "id": "string" },
+      "separator": "---",
+      "card": "H3 question then answer",
+      "children": false
+    },
+    "keypoints": {
+      "structure": "Markdown list; 3-8 ideal",
+      "children": false
+    },
+    "references": {
+      "structure": "ordered or unordered list with [title](https://url) and optional note",
+      "children": false
+    },
+    "gallery": {
+      "attrs": { "columns": "1-4" },
+      "structure": "one Markdown image per line",
+      "children": false
+    },
+    "figure": {
+      "attrs": { "src": "URL or path", "alt": "string", "caption": "string", "credit": "string" },
+      "children": false
+    }
+  },
+  "imagePolicy": {
+    "preferred": "direct https:// image URL",
+    "local": "relative path; import the complete folder",
+    "noGeneration": true,
+    "requiresAlt": true,
+    "requiresCreditForWebFigures": true,
+    "blockedSchemes": ["javascript:", "data:text/html", "file:"]
+  },
+  "validation": {
+    "command": "node skill/soffia/scripts/validate.mjs --json <file>",
+    "success": "summary.errors === 0",
+    "strict": "warnings also fail"
+  }
+}
