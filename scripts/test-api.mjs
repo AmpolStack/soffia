@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -17,6 +17,17 @@ const username = 'soffia';
 const password = 'Soffia-dev-password';
 
 const apiDir = join(root, 'server', 'Soffia.Api');
+const apiProject = join(apiDir, 'Soffia.Api.csproj');
+const build = spawnSync(
+  dotnet,
+  ['build', apiProject, '--configuration', 'Debug', '--nologo'],
+  { cwd: root, stdio: 'inherit' },
+);
+if (build.error) throw build.error;
+if (build.status !== 0) {
+  throw new Error('No se pudo compilar la API antes de las pruebas.');
+}
+
 const server = spawn(
   dotnet,
   [join(apiDir, 'bin', 'Debug', 'net9.0', 'Soffia.Api.dll')],
