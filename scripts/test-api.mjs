@@ -158,6 +158,24 @@ try {
   const decks = await list.json();
   assert(Array.isArray(decks) && decks.length === 1, `La biblioteca devolvió ${decks.length} decks.`);
 
+  const plainImport = await request('/api/decks/import', {
+    method: 'POST',
+    cookie,
+    body: {
+      files: [
+        {
+          markdown: '# Nota plana\n\n## Sección\n\nTexto sin frontmatter.\n',
+          sourceName: 'nota-plana.md',
+          assets: [],
+        },
+      ],
+    },
+  });
+  assert(plainImport.status === 200, `La importación plana falló con ${plainImport.status}.`);
+  const plainBody = await plainImport.json();
+  assert(plainBody.imported === 1, `No se importó el Markdown plano: ${JSON.stringify(plainBody)}`);
+  assert(plainBody.results[0].deck.id === 'nota-plana', 'El id del Markdown plano no se derivó del H1.');
+
   const badId = await request('/api/decks/%2E%2E%2Fsecreto', { cookie });
   assert(badId.status === 400, `Un id con travesía debería dar 400, llegó ${badId.status}.`);
 

@@ -80,6 +80,15 @@ public class DeckValidatorTests
     }
 
     [Fact]
+    public void Validate_AceptaMarkdownPlanoSiSePermite()
+    {
+        var result = DeckValidator.Validate("# Solo Markdown\n\n## Sección\n", allowPlain: true);
+        Assert.True(result.Ok);
+        Assert.Equal("solo-markdown", result.Id);
+        Assert.Equal("Solo Markdown", result.Title);
+    }
+
+    [Fact]
     public void Validate_RechazaYamlInvalido()
     {
         var broken = ValidDeck.Replace(
