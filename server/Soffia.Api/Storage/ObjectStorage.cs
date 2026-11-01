@@ -149,6 +149,11 @@ public sealed class R2ObjectStorage : IObjectStorage
             InputStream = content,
             ContentType = contentType,
             AutoCloseStream = false,
+            // R2 no implementa la firma SigV4 en streaming ni el checksum
+            // por defecto del SDK v4. Sin estos flags, PutObject falla con
+            // "STREAMING-AWS4-HMAC-SHA256-PAYLOAD not implemented".
+            DisablePayloadSigning = true,
+            DisableDefaultChecksumValidation = true,
         }, cancellationToken);
     }
 
