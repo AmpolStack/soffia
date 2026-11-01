@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-labelledby="title desc">
+  <title id="title">Algoritmo de tratamiento del impétigo</title>
+  <desc id="desc">Diagrama de flujo con la elección entre tratamiento tópico y sistémico según la extensión y los factores de riesgo.</desc>
+  <defs>
+    <linearGradient id="paper" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f6f1e9"/>
+      <stop offset="1" stop-color="#e9dfd1"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#4b3a2a" flood-opacity="0.16"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" fill="#5b4a3a"/>
+    </marker>
+  </defs>
+
+  <rect width="1200" height="800" fill="url(#paper)"/>
+  <text x="64" y="82" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="700" fill="#231b15">Impétigo: enfoque terapéutico</text>
+  <text x="64" y="116" font-family="Inter, Arial, sans-serif" font-size="18" fill="#6f5d4d">Decisión inicial según extensión, síntomas y factores de riesgo</text>
+  <line x1="64" y1="138" x2="1136" y2="138" stroke="#c9b8a5" stroke-width="2"/>
+
+  <g filter="url(#shadow)">
+    <rect x="380" y="176" width="440" height="92" rx="18" fill="#fffdf9" stroke="#8d7762" stroke-width="2"/>
+    <text x="600" y="213" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="21" font-weight="700" fill="#231b15">¿Lesiones extensas, síntomas sistémicos</text>
+    <text x="600" y="242" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="21" font-weight="700" fill="#231b15">o factores de riesgo?</text>
+  </g>
+
+  <path d="M600 268V330" fill="none" stroke="#5b4a3a" stroke-width="3" marker-end="url(#arrow)"/>
+  <line x1="600" y1="300" x2="250" y2="300" stroke="#5b4a3a" stroke-width="3"/>
+  <line x1="250" y1="300" x2="250" y2="330" stroke="#5b4a3a" stroke-width="3" marker-end="url(#arrow)"/>
+  <line x1="600" y1="300" x2="950" y2="300" stroke="#5b4a3a" stroke-width="3"/>
+  <line x1="950" y1="300" x2="950" y2="330" stroke="#5b4a3a" stroke-width="3" marker-end="url(#arrow)"/>
+  <text x="420" y="292" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="700" fill="#5b4a3a">No</text>
+  <text x="780" y="292" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="700" fill="#5b4a3a">Sí</text>
+
+  <g filter="url(#shadow)">
+    <rect x="80" y="338" width="340" height="166" rx="18" fill="#fffdf9" stroke="#8d7762" stroke-width="2"/>
+    <text x="108" y="378" font-family="Inter, Arial, sans-serif" font-size="19" font-weight="700" fill="#231b15">Tratamiento tópico</text>
+    <text x="108" y="412" font-family="Inter, Arial, sans-serif" font-size="17" fill="#4a3b2f">Mupirocina 2% 3 veces/día × 5 días</text>
+    <text x="108" y="440" font-family="Inter, Arial, sans-serif" font-size="17" fill="#4a3b2f">o retapamulina 2 veces/día × 5 días</text>
+    <text x="108" y="474" font-family="Inter, Arial, sans-serif" font-size="15" fill="#7a6756">Lesiones localizadas, sin síntomas sistémicos</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="780" y="338" width="340" height="166" rx="18" fill="#fffdf9" stroke="#8d7762" stroke-width="2"/>
+    <text x="808" y="378" font-family="Inter, Arial, sans-serif" font-size="19" font-weight="700" fill="#231b15">Tratamiento sistémico</text>
+    <text x="808" y="412" font-family="Inter, Arial, sans-serif" font-size="17" fill="#4a3b2f">Cefalexina o dicloxacilina 5–7 días</text>
+    <text x="808" y="440" font-family="Inter, Arial, sans-serif" font-size="17" fill="#4a3b2f">Alergia: clindamicina</text>
+    <text x="808" y="474" font-family="Inter, Arial, sans-serif" font-size="15" fill="#7a6756">Extensión, síntomas, ectima o brotes</text>
+  </g>
+
+  <path d="M250 504V560" fill="none" stroke="#5b4a3a" stroke-width="3" marker-end="url(#arrow)"/>
+  <path d="M950 504V560" fill="none" stroke="#5b4a3a" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <g filter="url(#shadow)">
+    <rect x="80" y="568" width="340" height="132" rx="18" fill="#efe4d4" stroke="#b9a48d" stroke-width="2"/>
+    <text x="108" y="606" font-family="Inter, Arial, sans-serif" font-size="17" font-weight="700" fill="#231b15">Reevaluar a los 5–7 días</text>
+    <text x="108" y="636" font-family="Inter, Arial, sans-serif" font-size="16" fill="#4a3b2f">Sin mejoría: cultivo, cubrir MRSA</text>
+    <text x="108" y="662" font-family="Inter, Arial, sans-serif" font-size="16" fill="#4a3b2f">y revisar diagnóstico diferencial</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="780" y="568" width="340" height="132" rx="18" fill="#efe4d4" stroke="#b9a48d" stroke-width="2"/>
+    <text x="808" y="606" font-family="Inter, Arial, sans-serif" font-size="17" font-weight="700" fill="#231b15">Sospecha de MRSA</text>
+    <text x="808" y="636" font-family="Inter, Arial, sans-serif" font-size="16" fill="#4a3b2f">Clindamicina, TMP-SMX o doxiciclina</text>
+    <text x="808" y="662" font-family="Inter, Arial, sans-serif" font-size="16" fill="#4a3b2f">según edad y resistencias locales</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="380" y="700" width="440" height="58" rx="16" fill="#231b15"/>
+    <text x="600" y="736" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="700" fill="#f6f1e9">Neonato, inmunosupresión o afectación extensa: derivar</text>
+  </g>
+  <path d="M250 700H380" fill="none" stroke="#5b4a3a" stroke-width="3" marker-end="url(#arrow)"/>
+  <path d="M950 700H820" fill="none" stroke="#5b4a3a" stroke-width="3" marker-end="url(#arrow)"/>
+</svg>

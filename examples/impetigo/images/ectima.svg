@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-labelledby="title desc">
+  <title id="title">Ectima: úlcera con costra adherente en la pierna</title>
+  <desc id="desc">Ilustración clínica de una pierna con una úlcera profunda de bordes elevados y costra central adherente.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e6ddd2"/>
+      <stop offset="1" stop-color="#c2ad99"/>
+    </linearGradient>
+    <linearGradient id="leg" x1="0" y1="0" x2="1" y2="0.2">
+      <stop offset="0" stop-color="#c78b6d"/>
+      <stop offset="0.48" stop-color="#e6b08d"/>
+      <stop offset="1" stop-color="#f0c6a4"/>
+    </linearGradient>
+    <radialGradient id="ulcer" cx="45%" cy="40%" r="65%">
+      <stop offset="0" stop-color="#5e2b20"/>
+      <stop offset="0.45" stop-color="#8c4430"/>
+      <stop offset="0.78" stop-color="#c0694e"/>
+      <stop offset="1" stop-color="#e19a78"/>
+    </radialGradient>
+    <linearGradient id="crust" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#d8a44c"/>
+      <stop offset="0.5" stop-color="#a96724"/>
+      <stop offset="1" stop-color="#6e3717"/>
+    </linearGradient>
+    <filter id="soft" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="18"/>
+    </filter>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="14" stdDeviation="20" flood-color="#4e2f22" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="800" fill="url(#bg)"/>
+  <circle cx="950" cy="160" r="240" fill="#fff8ec" opacity="0.28" filter="url(#soft)"/>
+  <circle cx="180" cy="700" r="200" fill="#7d4e38" opacity="0.12" filter="url(#soft)"/>
+
+  <g transform="rotate(8 600 400)" filter="url(#shadow)">
+    <path d="M452 60c82-26 170-10 228 44 38 36 56 86 50 144l-44 404c-6 58-36 98-86 116-58 20-126 4-166-42-30-34-42-76-38-126l48-408c4-54 24-104 8-132z" fill="url(#leg)"/>
+    <path d="M472 88c64-18 134-4 180 38" fill="none" stroke="#a86a50" stroke-width="3" opacity="0.4"/>
+    <path d="M430 620c36 40 92 58 150 48 50-8 88-36 108-78" fill="none" stroke="#a86a50" stroke-width="3" opacity="0.35"/>
+
+    <g opacity="0.5" stroke="#8e5a40" stroke-width="2">
+      <path d="M500 220c16-8 34-6 48 4" fill="none"/>
+      <path d="M482 260c14-6 28-4 40 4" fill="none"/>
+      <path d="M540 300c12-5 24-3 34 3" fill="none"/>
+      <path d="M488 500c18-6 36-4 50 4" fill="none"/>
+      <path d="M610 560c14-5 28-3 38 4" fill="none"/>
+    </g>
+
+    <g>
+      <ellipse cx="584" cy="392" rx="150" ry="116" fill="#b65f45" opacity="0.35" filter="url(#soft)"/>
+      <ellipse cx="584" cy="392" rx="118" ry="90" fill="url(#ulcer)" stroke="#8e4933" stroke-width="7"/>
+      <ellipse cx="584" cy="392" rx="94" ry="70" fill="none" stroke="#f0b08d" stroke-width="8" opacity="0.55"/>
+      <path d="M520 386c26-30 66-44 106-34 32 8 54 30 58 58-30 12-62 14-94 6-30-8-56-18-70-30z" fill="url(#crust)" stroke="#5e2b20" stroke-width="5"/>
+      <path d="M540 384c22-12 48-16 72-10" fill="none" stroke="#e9bd6a" stroke-width="6" stroke-linecap="round" opacity="0.75"/>
+      <path d="M548 422c20 8 42 10 62 6" fill="none" stroke="#5e2b20" stroke-width="4" stroke-linecap="round" opacity="0.7"/>
+    </g>
+
+    <g fill="#b26448" opacity="0.55">
+      <circle cx="444" cy="446" r="4"/>
+      <circle cx="718" cy="430" r="3.4"/>
+      <circle cx="670" cy="482" r="2.8"/>
+      <circle cx="500" cy="470" r="2.4"/>
+    </g>
+  </g>
+
+  <g opacity="0.55" fill="#3c2a21">
+    <text x="64" y="732" font-family="Inter, Arial, sans-serif" font-size="20" letter-spacing="2">ILUSTRACIÓN CLÍNICA</text>
+    <text x="64" y="760" font-family="Inter, Arial, sans-serif" font-size="15" opacity="0.75">Úlcera de bordes elevados con costra adherente</text>
+  </g>
+</svg>
