@@ -211,6 +211,12 @@ Comprueba `APP_COOKIE_SECURE=true` y que estás en HTTPS. Si llamas a la API dir
 **Los decks desaparecen al reiniciar Render.**
 Estás usando disco local sin R2. Configura las cuatro variables de R2.
 
+**Al importar aparece `STREAMING-AWS4-HMAC-SHA256-PAYLOAD not implemented`.**
+La imagen desplegada usa un cliente R2 antiguo. Actualiza el repositorio y vuelve a desplegar. El cliente actual desactiva la firma SigV4 en streaming y el checksum por defecto, que R2 no implementa. Si el error continúa, revisa que el token R2 tenga `Object Read & Write` y que el bucket sea el correcto.
+
+**`No se pudo leer el YAML` o `found invalid mapping`.**
+Un valor del frontmatter contiene dos puntos seguidos de espacio sin comillas. Por ejemplo, `description: Tema: detalles` debe escribirse como `description: "Tema: detalles"`. Lo mismo aplica a títulos, subtítulos y descripciones con `:`.
+
 **Un SVG no se muestra.**
 La API sirve los assets con `Content-Security-Policy: default-src 'none'` para evitar scripts. Si el SVG depende de recursos externos, no se cargarán. Es intencionado.
 
