@@ -188,6 +188,152 @@ La skill y el servidor MCP están en:
 
 Para un modelo que use herramientas web, pídele que lea `https://tu-dominio/llms.txt`. Para una persona, abre `/formato`.
 
+Para instalar el servidor MCP local y conectarlo a OpenCode, consulta [Servidor MCP para OpenCode](#servidor-mcp-para-opencode).
+
+## Servidor MCP para OpenCode
+
+El servidor MCP de soffia permite que OpenCode consulte el formato, genere scaffolds, valide decks y los guarde. Es un proceso **local por `stdio`**: no necesita backend, puertos, API keys, Docker, .NET, Cloudflare ni una cuenta de Render. Solo necesita Node.js y las dependencias del repositorio.
+
+Esta sección es redundante a propósito con [`mcp/README.md`](mcp/README.md): aquí está el camino completo para replicarlo desde cero en otra máquina, incluso si no tiene Node ni npm, y para pedirle a OpenCode que haga la instalación, la conexión y la prueba por ti. Si la máquina está vacía, salta directamente a [Pedirle a OpenCode que lo haga](#pedirle-a-opencode-que-lo-haga).
+
+### Requisitos del MCP
+
+| Requisito | Versión | Cómo comprobarlo |
+| --- | --- | --- |
+| Node.js | 18 o superior; recomendado 22 LTS | `node --version` |
+| npm | incluido con Node.js | `npm --version` |
+| Git | cualquiera reciente | `git --version` |
+| OpenCode | V2 | `opencode --version` |
+
+No hace falta instalar el paquete `soffia` de forma global ni publicar el servidor. El MCP vive dentro del repositorio y se ejecuta con `node`.
+
+### Instalación manual
+
+1. Clona el repositorio y entra en él:
+
+```bash
+git clone https://github.com/AmpolStack/soffia.git
+cd soffia
+```
+
+El repositorio es privado. Si Git no tiene credenciales, ejecuta `gh auth login` y luego `gh repo clone AmpolStack/soffia`.
+
+2. Instala las dependencias exactas del lockfile:
+
+```bash
+npm ci
+```
+
+3. Prueba el protocolo antes de conectarlo:
+
+```bash
+npm run test:mcp
+```
+
+Debes ver las herramientas, los recursos, el prompt y `MCP OK`. Si falla, revisa [Solución de problemas](#solución-de-problemas).
+
+4. Arranca el servidor manualmente para confirmar que no muere:
+
+```bash
+npm run mcp
+```
+
+El proceso queda esperando por `stdio` y no muestra un prompt interactivo. Es normal. Pulsa `Ctrl+C` para cerrarlo.
+
+### Conectarlo a OpenCode
+
+OpenCode V2 usa `mcp.servers` y guarda la configuración global en `~/.config/opencode/opencode.jsonc` (o en `$XDG_CONFIG_HOME/opencode/opencode.jsonc`). En Windows suele ser `C:\Users\tu-usuario\.config\opencode\opencode.jsonc`.
+
+La opción recomendada es la CLI, porque conserva el resto de tu configuración:
+
+```bash
+opencode mcp add soffia --global -- node "/ruta/absoluta/a/soffia/mcp/soffia-server.mjs"
+```
+
+En Windows, con una ruta absoluta:
+
+```powershell
+opencode mcp add soffia --global -- node "C:/Users/tu-usuario/soffia/mcp/soffia-server.mjs"
+```
+
+Si prefieres editar la configuración a mano, añade esto al `opencode.jsonc` global o al del proyecto:
+
+```jsonc
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "servers": {
+      "soffia": {
+        "type": "local",
+        "command": ["node", "C:/ruta/absoluta/a/soffia/mcp/soffia-server.mjs"],
+        "cwd": "C:/ruta/absoluta/a/soffia"
+      }
+    }
+  }
+}
+```
+
+Notas:
+
+- `cwd` es opcional, pero conviene apuntar a la raíz del repositorio para que `soffia_save_decks` con destino `cwd` guarde en un lugar predecible.
+- Usa `disabled: true` solo si quieres dejarlo configurado sin conectarlo. No uses `enabled`: es de la configuración antigua.
+- Si `node` no está en el `PATH` que ve OpenCode, usa la ruta absoluta al ejecutable (`where node` en Windows; `command -v node` en macOS/Linux).
+- OpenCode V2 recarga la configuración al guardar. Si hace falta, usa `/reload`; no reinicies el servicio salvo que esté bloqueado.
+
+### Pedirle a OpenCode que lo haga
+
+Si la máquina no tiene Node, npm, Git o el repositorio, abre OpenCode en cualquier carpeta y pega este prompt. Está escrito para que el agente compruebe el sistema, instale lo que falte, conecte el MCP y lo verifique, sin asumir una ruta ni un sistema operativo.
+
+```text
+Instala y conecta el servidor MCP local de soffia en esta máquina.
+
+Repositorio: https://github.com/AmpolStack/soffia
+Ruta de trabajo sugerida: <ruta donde quieres clonar soffia>
+Cliente: OpenCode V2
+
+Hazlo en este orden:
+1. Detecta el sistema operativo y comprueba `node --version`, `npm --version`, `git --version` y `opencode --version`.
+2. Si falta Node.js 18+ o npm, instala Node.js 22 LTS con el gestor adecuado para el sistema (winget, choco o scoop en Windows; Homebrew en macOS; el paquete oficial, nvm o fnm en Linux). Si falta Git, instálalo con el gestor del sistema. No instales dependencias globales innecesarias.
+3. Clona el repositorio en la ruta indicada. Si el repositorio es privado y no hay credenciales, ejecuta `gh auth login` o pide las credenciales necesarias.
+4. Dentro del repositorio ejecuta `npm ci`.
+5. Ejecuta `npm run test:mcp` y confirma que termina con `MCP OK`.
+6. Registra el servidor en la configuración global de OpenCode con:
+   `opencode mcp add soffia --global -- node "<ruta absoluta>/mcp/soffia-server.mjs"`
+   Si la CLI no está disponible, edita `~/.config/opencode/opencode.jsonc` y añade el servidor bajo `mcp.servers.soffia` con `type: "local"`, `command` y `cwd`.
+7. Ejecuta `opencode mcp list` y confirma que `soffia` aparece como `connected`.
+8. Haz una prueba real: pide la lista de herramientas de soffia o genera un deck mínimo y valídalo con `soffia_validate_deck`.
+9. Al terminar, muéstrame la ruta del repositorio, el comando exacto con el que quedó registrado y el resultado de `opencode mcp list`.
+
+No escribas secretos en la configuración. No uses `enabled`; usa `disabled` solo si quieres dejarlo desconectado. No borres otras entradas de `mcp.servers`. Si no puedes instalar software del sistema, dame los comandos exactos para hacerlo yo.
+```
+
+### Comprobar la conexión
+
+```bash
+opencode mcp list
+```
+
+Debe aparecer `soffia` y su estado de conexión. Desde OpenCode también puedes abrir `/mcps` para verlo, conectarlo o desconectarlo.
+
+Para probarlo dentro de OpenCode, pide algo como:
+
+```text
+Usa las herramientas de soffia para obtener el formato, crear un deck mínimo sobre un tema de prueba y validarlo. No lo guardes hasta que tenga 0 errores.
+```
+
+Las herramientas expuestas son `soffia_get_format`, `soffia_get_schema`, `soffia_scaffold_deck`, `soffia_validate_deck`, `soffia_validate_decks`, `soffia_save_decks` y `soffia_get_example`.
+
+### Solución de problemas
+
+| Síntoma | Causa probable | Solución |
+| --- | --- | --- |
+| `soffia` no aparece en `opencode mcp list` | Configuración en otro archivo, nombre distinto o servidor deshabilitado | Revisa `mcp.servers.soffia` y que no tenga `disabled: true`. |
+| Aparece `failed` o `disconnected` | `node` no está en el `PATH` o la ruta al `.mjs` no existe | Usa rutas absolutas para `node` y para `mcp/soffia-server.mjs`; prueba `node "ruta/mcp/soffia-server.mjs"`. |
+| `npm run test:mcp` falla | Dependencias incompletas o Node antiguo | Ejecuta `npm ci` y comprueba que `node --version` sea 18 o superior. |
+| El servidor termina al ejecutarlo a mano | Se lanzó sin un cliente MCP que hable `stdio` | Es normal; conéctalo desde OpenCode en lugar de esperar un prompt. |
+| `soffia_save_decks` guarda en un sitio inesperado | `cwd` no apunta a la raíz del repositorio | Añade un `cwd` absoluto o pasa `destination`/`customPath`. |
+| Los cambios de configuración no se aplican | OpenCode aún no recargó | Guarda el archivo y usa `/reload`; vuelve a comprobar con `opencode mcp list`. |
+
 ## Uso
 
 ### Importar
