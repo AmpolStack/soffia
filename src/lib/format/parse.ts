@@ -43,6 +43,7 @@ type FrontmatterResult = {
   data: Record<string, unknown>;
   body: string;
   warning?: string;
+  severity?: 'warning' | 'error';
 };
 
 const HEADING_RE = /^\s*(#{1,6})\s+(.+?)\s*$/;
@@ -85,7 +86,7 @@ export function parseDocument(
   if (frontmatter.warning) {
     ctx.warnings.push({
       message: frontmatter.warning,
-      severity: 'warning',
+      severity: frontmatter.severity ?? 'warning',
     });
   }
 
@@ -210,6 +211,7 @@ function splitFrontmatter(input: string): FrontmatterResult {
         data: {},
         body,
         warning: 'El frontmatter no contiene un objeto YAML válido.',
+        severity: 'error',
       };
     }
     return { data: parsed as Record<string, unknown>, body };
@@ -219,7 +221,8 @@ function splitFrontmatter(input: string): FrontmatterResult {
       body,
       warning: `No se pudo leer el frontmatter YAML: ${
         error instanceof Error ? error.message : String(error)
-      }`,
+      } Entre comillas los valores que contengan dos puntos seguidos de espacio o caracteres especiales.`,
+      severity: 'error',
     };
   }
 }

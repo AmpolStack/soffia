@@ -144,6 +144,25 @@ describe('parseDocument', () => {
   it('no genera warnings en el ejemplo', () => {
     expect(doc.warnings.filter((warning) => warning.severity === 'error')).toHaveLength(0);
   });
+
+  it('marca como error un frontmatter YAML inválido', () => {
+    const broken = parseDocument(`---
+title: Prueba
+description: Un texto con dos puntos: sin comillas
+---
+
+# Prueba
+
+## Sección
+`);
+    expect(
+      broken.warnings.some(
+        (warning) =>
+          warning.severity === 'error' &&
+          warning.message.includes('frontmatter YAML'),
+      ),
+    ).toBe(true);
+  });
 });
 
 describe('bloques incompletos', () => {
