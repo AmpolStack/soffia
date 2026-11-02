@@ -529,3 +529,4 @@ MIT. Consulta [`LICENSE`](LICENSE).
 - Iconos **Lucide**, bajo ISC License.
 - Markdown renderizado con **markdown-it**.
 - Ejemplos clínicos y astronómicos con sus fuentes citadas en cada deck.
+- **OpenCode + DeepSeek V4.1 Flash 1017** — programación en pareja, documentación, pruebas y depuración. uwu
