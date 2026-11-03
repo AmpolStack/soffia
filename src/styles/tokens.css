@@ -5,12 +5,12 @@
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono',
     monospace;
 
-  /* Escala tipográfica accesible. Compacto nunca baja de 16px. */
-  --text-base: 1.0625rem;
-  --text-sm: 1rem;
-  --text-xs: 0.875rem;
-  --text-ui: 1rem;
-  --text-label: 0.875rem;
+  /* Escala tipográfica del lector, reducida un 20% respecto a la anterior. */
+  --text-base: 0.8rem;
+  --text-sm: 0.75rem;
+  --text-xs: 0.7rem;
+  --text-ui: 0.75rem;
+  --text-label: 0.7rem;
   --leading-body: 1.7;
   --measure: 68ch;
 
@@ -32,10 +32,13 @@
 
   --header-h: 64px;
   --control-size: 44px;
-  --content-w: 68ch;
+  --aside-w: 220px;
   --toc-w: 240px;
-  --reader-gap: 56px;
+  --reader-gap: 72px;
   --reader-max: 1120px;
+  --reader-wide-max: calc(
+    var(--reader-max) + var(--aside-w) + var(--reader-gap)
+  );
 
   --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
   --speed: 180ms;
@@ -103,7 +106,8 @@
   --a-900: rgba(255, 255, 255, 0.9);
 
   --header-bg: rgba(0, 0, 0, 0.86);
-  --image-bg: #0b0b0b;
+  /* Fondo neutro para imágenes con transparencia, en ambos temas. */
+  --image-bg: #ffffff;
   --code-bg: #0d0d0d;
   --glow: rgba(255, 255, 255, 0.10);
   --track: rgba(255, 255, 255, 0.12);
@@ -207,7 +211,7 @@
   --a-900: rgba(23, 23, 23, 0.9);
 
   --header-bg: rgba(244, 242, 237, 0.9);
-  --image-bg: #e7e2d9;
+  --image-bg: #ffffff;
   --code-bg: #ece8df;
   --glow: rgba(23, 23, 23, 0.055);
   --track: rgba(23, 23, 23, 0.12);
@@ -268,17 +272,19 @@
 }
 
 :root[data-font-scale='compact'] {
-  --text-base: 1rem;
-  --text-sm: 0.9375rem;
-  --text-xs: 0.875rem;
-  --text-ui: 0.9375rem;
+  --text-base: 0.75rem;
+  --text-sm: 0.7rem;
+  --text-xs: 0.65rem;
+  --text-ui: 0.7rem;
+  --text-label: 0.65rem;
 }
 
 :root[data-font-scale='large'] {
-  --text-base: 1.1875rem;
-  --text-sm: 1rem;
-  --text-xs: 0.9375rem;
-  --text-ui: 1rem;
+  --text-base: 1rem;
+  --text-sm: 0.85rem;
+  --text-xs: 0.8rem;
+  --text-ui: 0.85rem;
+  --text-label: 0.8rem;
 }
 
 :root[data-reduce-motion='true'] *,
@@ -291,19 +297,12 @@
 }
 
 @media (max-width: 620px) {
-  :root {
-    --text-base: 1rem;
-    --text-sm: 0.9375rem;
-    --text-xs: 0.875rem;
-    --text-ui: 0.9375rem;
-    --text-label: 0.875rem;
-  }
-
   :root[data-font-scale='large'] {
-    --text-base: 1.0625rem;
-    --text-sm: 0.9375rem;
-    --text-xs: 0.875rem;
-    --text-ui: 0.9375rem;
+    --text-base: 0.95rem;
+    --text-sm: 0.85rem;
+    --text-xs: 0.8rem;
+    --text-ui: 0.85rem;
+    --text-label: 0.8rem;
   }
 }
 

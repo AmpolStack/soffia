@@ -1,0 +1,107 @@
+/*
+ * En escritorio ocultamos visualmente la barra nativa, pero conservamos su
+ * espacio y su función. La barra del documento se dibuja sobre el borde
+ * derecho de la columna de lectura y aparece solo cuando el puntero está
+ * sobre el contenido (o sobre la propia barra).
+ */
+@media (hover: hover) and (pointer: fine) {
+  html.has-doc-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+    /* Reserva el carril para que el bloqueo de scroll no mueva el contenido. */
+    scrollbar-gutter: stable;
+  }
+
+  /* `scrollbar-color` se hereda: devolvemos el color a los scrolls internos. */
+  :where(html.has-doc-scrollbar *) {
+    scrollbar-color: var(--line-strong) transparent;
+  }
+
+  html.has-doc-scrollbar::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  html.has-doc-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  html.has-doc-scrollbar::-webkit-scrollbar-thumb,
+  html.has-doc-scrollbar::-webkit-scrollbar-thumb:hover {
+    border: 0;
+    background: transparent;
+  }
+}
+
+.doc-scrollbar {
+  position: fixed;
+  top: calc(var(--header-h) + 10px);
+  right: 3px;
+  bottom: 10px;
+  z-index: 95;
+  width: 14px;
+  border-radius: var(--radius-pill);
+  opacity: 0;
+  pointer-events: none;
+  touch-action: none;
+  transition: opacity 160ms var(--ease);
+}
+
+.doc-scrollbar.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.doc-scrollbar.is-disabled {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.doc-scrollbar:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.doc-scrollbar__thumb {
+  position: absolute;
+  right: 2px;
+  left: 2px;
+  min-height: 44px;
+  border-radius: var(--radius-pill);
+  background: var(--scroll-thumb);
+  cursor: grab;
+  transition: background var(--speed) var(--ease);
+}
+
+.doc-scrollbar__thumb:hover,
+.doc-scrollbar.is-dragging .doc-scrollbar__thumb {
+  background: var(--scroll-thumb-hover);
+}
+
+.doc-scrollbar.is-dragging {
+  cursor: grabbing;
+}
+
+.doc-scrollbar.is-dragging .doc-scrollbar__thumb {
+  cursor: grabbing;
+}
+
+body.has-table-fullscreen .doc-scrollbar,
+.toc.is-mobile-open ~ .doc-scrollbar {
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (hover: none), (pointer: coarse) {
+  .doc-scrollbar {
+    display: none;
+  }
+}
+
+@media print {
+  .doc-scrollbar {
+    display: none !important;
+  }
+}

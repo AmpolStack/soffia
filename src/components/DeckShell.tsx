@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, Outlet, useParams } from 'react-router-dom';
+import { Link, Outlet, useMatch, useParams } from 'react-router-dom';
 import { AlertTriangle, ArrowLeft, RefreshCw } from 'lucide-react';
 import { DeckProvider, useDeck } from '../contexts/DeckContext';
 import { LightboxProvider } from '../contexts/LightboxContext';
@@ -32,6 +32,9 @@ export function DeckShell() {
 function DeckShellInner({ deckId }: { deckId: string }) {
   const { deck, document: doc, loading, error } = useDeck();
   const [searchOpen, setSearchOpen] = useState(false);
+  // En el lector el aside vive dentro de la rejilla de tres columnas. En las
+  // vistas de estudio se mantiene como marca de agua fija.
+  const isReader = useMatch('/deck/:deckId');
 
   useEffect(() => {
     if (!deck) {
@@ -119,7 +122,7 @@ function DeckShellInner({ deckId }: { deckId: string }) {
         deckTitle={deck.title}
         onSearch={() => setSearchOpen(true)}
       />
-      <DeckWatermark deck={deck} />
+      {isReader ? null : <DeckWatermark deck={deck} />}
       <div className="deck-content">
         <Outlet />
       </div>

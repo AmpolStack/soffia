@@ -6,7 +6,7 @@ import { SoffiaMark } from './SoffiaMark';
 import type { Accent, FontScale, Theme } from '../lib/storage/settings';
 
 const FONT_OPTIONS: Array<{ value: FontScale; label: string; sample: string }> = [
-  { value: 'compact', label: 'Compacto', sample: 'A' },
+  { value: 'compact', label: 'Pequeño', sample: 'A' },
   { value: 'normal', label: 'Normal', sample: 'A' },
   { value: 'large', label: 'Grande', sample: 'A' },
 ];

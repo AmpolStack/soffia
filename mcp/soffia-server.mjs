@@ -327,7 +327,7 @@ const server = new McpServer(
   },
   {
     instructions:
-      'soffia enseña a producir decks de estudio en Markdown. Antes de escribir, obtén el formato con soffia_get_format. Usa soffia_scaffold_deck si necesitas una estructura. No generes imágenes: usa URLs https directas y verificables con crédito, o archivos locales aportados por el usuario. Valida siempre con soffia_validate_deck o soffia_validate_decks hasta obtener 0 errores. Para entregar archivos, usa soffia_save_decks con uno o varios decks: pregunta el destino (carpeta personalizada, directorio actual o Downloads/soffia) y guarda los válidos aunque otros fallen. Los archivos se nombran soffia-<nombre>-<id>.md.',
+      'soffia enseña a producir decks de estudio en Markdown. Antes de escribir, obtén el formato con soffia_get_format. Usa soffia_scaffold_deck si necesitas una estructura. No generes imágenes: usa URLs https directas y verificables con crédito, o archivos locales aportados por el usuario. Incluye al menos una imagen web relevante cuando el tema lo permita y asegúrate de que ningún encabezado, bloque o tarjeta quede vacío. Valida siempre con soffia_validate_deck o soffia_validate_decks hasta obtener 0 errores. Para entregar archivos, usa soffia_save_decks con uno o varios decks: pregunta el destino (carpeta personalizada, directorio actual o Downloads/soffia) y guarda los válidos aunque otros fallen. Los archivos se nombran soffia-<nombre>-<id>.md.',
   },
 );
 
@@ -340,7 +340,7 @@ server.registerTool(
   {
     title: 'Obtener formato soffia',
     description:
-      'Devuelve la guía portable para escribir un deck soffia: frontmatter, bloques :::, imágenes web, IDs y validación. Úsala antes de generar o corregir un deck.',
+      'Devuelve la guía portable para escribir un deck soffia: frontmatter, bloques :::, imágenes web, reglas de contenido completo, IDs y validación. Úsala antes de generar o corregir un deck.',
     inputSchema: {
       full: z
         .boolean()
@@ -679,7 +679,7 @@ server.registerTool(
         ]),
         '',
         images === 0
-          ? 'Ningún deck incluye imágenes. Se guardaron igualmente; si quieres enriquecerlos, añade URLs https verificables con crédito.'
+          ? 'Ningún deck incluye imágenes. Se guardaron igualmente; si el tema lo permite, añade al menos una URL https verificable con crédito.'
           : `Los decks incluyen ${images} imagen(es) web o local(es).`,
         report.summary.errors > 0
           ? 'Los archivos con error no se escribieron. Corrígelos y vuelve a llamar a soffia_save_decks.'
@@ -753,11 +753,11 @@ server.registerPrompt(
             'Proceso obligatorio:',
             '1. Llama a soffia_get_format y sigue su estructura.',
             '2. Si necesitas estructura, usa soffia_scaffold_deck. Puedes adaptar las secciones al tema.',
-            '3. Escribe contenido propio: 6–12 secciones H2, H3 solo para subtemas reales.',
+            '3. Escribe contenido propio: 6–12 secciones H2, H3 solo para subtemas reales; ningún encabezado, bloque o tarjeta debe quedar vacío.',
             '4. Añade keypoints, quizzes, flashcards, Q&A y referencias verificables.',
             images === 'none'
               ? '5. No incluyas imágenes.'
-              : '5. Usa imágenes https:// directas, verificables y con crédito; no generes imágenes.',
+              : '5. Incluye al menos una imagen web relevante cuando el tema lo permita, con URL https directa, alt, pie y crédito. Si no hay una fuente verificable, omítela. No generes imágenes.',
             '6. Llama a soffia_validate_deck o soffia_validate_decks y corrige todos los errores. Repite hasta 0 errores.',
             '7. Pregunta dónde guardar: carpeta personalizada, directorio actual o Downloads/soffia (por defecto).',
             '8. Llama a soffia_save_decks con todos los decks. Si generas varios archivos, envíalos en una sola llamada; los inválidos se reportan sin bloquear los válidos.',

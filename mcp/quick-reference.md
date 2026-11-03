@@ -4,7 +4,7 @@ soffia convierte un Markdown con frontmatter en un deck de lectura y estudio. Es
 
 ## Contrato de salida
 
-Entrega un archivo `.md` con frontmatter YAML. Las imágenes pueden ser URLs web `https://` directas o archivos locales aportados por el usuario. No generes imágenes, SVGs ni placeholders.
+Entrega un archivo `.md` con frontmatter YAML. Las imágenes pueden ser URLs web `https://` directas o archivos locales aportados por el usuario. No generes imágenes, SVGs ni placeholders. Incluye al menos una imagen web relevante cuando el tema lo permita, con `alt`, pie y crédito.
 
 ```md
 ---
@@ -78,6 +78,23 @@ Para resolver este tipo de problema.
 8. No anides quizzes, flashcards, Q&A, referencias, keypoints, galerías ni figuras. Solo `callout`, `note`, `quote`, `grid` y `steps` admiten otros bloques.
 9. Los encabezados dentro de un bloque no crean secciones del documento.
 10. Usa IDs estables en quizzes y tarjetas si quieres conservar el progreso.
+11. Todo encabezado, bloque y tarjeta debe tener contenido real; no dejes labels vacíos.
+
+## Reglas de contenido completo
+
+- Cada **H2** y cada **H3** debe ir seguido de contenido real: párrafos, listas, tablas, imágenes o bloques con cuerpo. No encadenes encabezados vacíos.
+- Cada bloque debe tener contenido útil:
+  - `callout`, `note` y `quote`: texto además del título;
+  - `keypoints`: al menos un ítem;
+  - `steps`: cada paso con título y cuerpo;
+  - `quiz`: pregunta, al menos dos opciones, una correcta y explicación;
+  - `flashcards` y `qa`: frente/pregunta y reverso/respuesta;
+  - `references`: título, URL y nota de qué aporta;
+  - `gallery` y `figure`: imagen con `alt` y, si es web, crédito;
+  - `grid`: contenido en todas las celdas.
+- No uses `TODO`, `N/A`, `...`, `pendiente` ni placeholders como contenido.
+- No dejes listas, tablas, tarjetas, pasos, opciones o secciones vacías. Si un elemento no aporta contenido, omítelo.
+- Un deck más corto y completo es mejor que uno largo con labels sin cuerpo.
 
 ## Frontmatter
 
@@ -238,6 +255,8 @@ Usa `https://`, títulos descriptivos y una nota de qué aporta cada fuente. No 
 
 ## Imágenes web
 
+- **Incluye al menos una imagen web relevante siempre que el tema lo permita.** Debe enseñar algo y tener una URL `https://` directa, `alt`, pie y crédito.
+- Si no encuentras una imagen verificable y con licencia, omítela. No inventes URLs, no generes placeholders ni imágenes.
 - Usa una URL **directa al archivo** de imagen, no a la página del artículo.
 - Usa `https://`; evita `http://`.
 - Verifica que la licencia permite el uso y añade crédito.
@@ -265,7 +284,7 @@ No importa si el texto es un seminario, una guía, un resumen o una investigaci�
 3. Explica primero; después añade tablas, pasos o callouts.
 4. Convierte las ideas evaluables en quizzes; los conceptos memorizables en flashcards; las dudas en Q&A.
 5. Añade referencias verificables.
-6. Añade imágenes web solo si enseñan algo y tienen crédito.
+6. Incluye al menos una imagen web relevante cuando el tema lo permita; si no hay una fuente verificable, omítela.
 7. Valida hasta obtener 0 errores.
 
 ## Validación
@@ -275,7 +294,7 @@ node skill/soffia/scripts/validate.mjs ruta/al/deck.md
 node skill/soffia/scripts/validate.mjs --strict ruta/al/deck.md
 ```
 
-Códigos: `0` sin errores; `1` errores o avisos en modo estricto; `2` error de uso.
+Códigos: `0` sin errores; `1` errores o avisos en modo estricto; `2` error de uso. El validador también avisa de encabezados H2/H3 sin contenido y de imágenes o bloques incompletos.
 
 Antes de entregar:
 
@@ -286,7 +305,8 @@ Antes de entregar:
 - [ ] Quizzes con opciones, correcta y explicación.
 - [ ] Tarjetas con frente y reverso.
 - [ ] Referencias con `https://`.
-- [ ] Imágenes con `alt`; las figuras web con crédito.
+- [ ] Al menos una imagen web relevante cuando el tema lo permite, con `alt`, pie y crédito.
+- [ ] Ningún encabezado, bloque, tarjeta, paso, opción o referencia queda vacío.
 - [ ] 0 errores del validador.
 
 ## Entrega con MCP
@@ -297,6 +317,6 @@ Si el cliente tiene el servidor soffia:
 2. Llama a `soffia_save_decks` con **todos** los decks en una sola llamada.
 3. Los archivos inválidos se reportan sin bloquear los válidos.
 4. El servidor no sobrescribe: usa `soffia-<nombre>-<id>.md` con un sufijo de 4 caracteres hexadecimales.
-5. Las imágenes no son obligatorias; si faltan, el guardado continúa y se sugiere añadir URLs `https://` con crédito.
+5. Las imágenes son opcionales solo cuando el tema no permite una fuente web verificable; si faltan, el guardado continúa y se sugiere añadir URLs `https://` con crédito.
 
 Sin MCP, entrega el Markdown completo y valida con el comando de la sección anterior.
