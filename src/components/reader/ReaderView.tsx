@@ -342,7 +342,6 @@ export function ReaderView() {
 
   return (
     <div className="reader-layout">
-      <DocumentScrollbar />
       <div
         className="reading-progress"
         role="progressbar"
@@ -468,6 +467,8 @@ export function ReaderView() {
         <List size={17} aria-hidden="true" />
         Índice
       </button>
+
+      <DocumentScrollbar />
     </div>
   );
 }

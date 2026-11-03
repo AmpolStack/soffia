@@ -79,6 +79,10 @@
   background: var(--scroll-thumb-hover);
 }
 
+.doc-scrollbar.is-dragging {
+  cursor: grabbing;
+}
+
 .doc-scrollbar.is-dragging .doc-scrollbar__thumb {
   cursor: grabbing;
 }

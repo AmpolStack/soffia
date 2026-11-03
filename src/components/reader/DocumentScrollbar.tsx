@@ -118,7 +118,7 @@ export function DocumentScrollbar() {
     if (max <= 0) return;
     window.scrollTo({
       top: Math.min(max, Math.max(0, ratio * max)),
-      behavior: 'auto',
+      behavior: 'instant',
     });
   };
 
@@ -176,7 +176,7 @@ export function DocumentScrollbar() {
 
     if (event.key === 'Home') {
       event.preventDefault();
-      window.scrollTo({ top: 0, behavior: 'auto' });
+      window.scrollTo({ top: 0, behavior: 'instant' });
       return;
     }
 
@@ -184,7 +184,7 @@ export function DocumentScrollbar() {
       event.preventDefault();
       window.scrollTo({
         top: document.documentElement.scrollHeight,
-        behavior: 'auto',
+        behavior: 'instant',
       });
       return;
     }
@@ -192,7 +192,7 @@ export function DocumentScrollbar() {
     const delta = moves[event.key];
     if (delta === undefined) return;
     event.preventDefault();
-    window.scrollBy({ top: delta, behavior: 'auto' });
+    window.scrollBy({ top: delta, behavior: 'instant' });
   };
 
   const disabled = !metrics.visible;
@@ -205,6 +205,7 @@ export function DocumentScrollbar() {
       ref={railRef}
       className={className}
       role="scrollbar"
+      aria-label="Desplazamiento del documento"
       aria-controls="contenido"
       aria-orientation="vertical"
       aria-valuemin={0}
@@ -215,6 +216,10 @@ export function DocumentScrollbar() {
       onPointerMove={onPointerMove}
       onPointerUp={endDrag}
       onPointerCancel={endDrag}
+      onLostPointerCapture={() => {
+        draggingRef.current = false;
+        setDragging(false);
+      }}
       onKeyDown={onKeyDown}
       onFocus={() => setVisibleState(true)}
       onBlur={() => {
