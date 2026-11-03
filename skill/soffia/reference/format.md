@@ -165,6 +165,22 @@ Todo lo que va entre el H1 y el primer H2 es el contenido de introducción: pár
 - un `:::keypoints` con las ideas que hay que retener;
 - una figura o portada.
 
+### Contenido mínimo de cada elemento
+
+- Cada H2 y cada H3 debe ir seguido de contenido real: párrafos, listas, tablas, imágenes o bloques con cuerpo. No encadenes encabezados vacíos.
+- Cada bloque debe tener contenido útil:
+  - `callout`, `note` y `quote`: texto además del título;
+  - `keypoints`: al menos un ítem;
+  - `steps`: cada paso con título y cuerpo;
+  - `quiz`: pregunta, al menos dos opciones, una correcta y explicación;
+  - `flashcards` y `qa`: frente/pregunta y reverso/respuesta;
+  - `references`: título, URL y nota de qué aporta;
+  - `gallery` y `figure`: imagen con `alt` y, si es web, crédito;
+  - `grid`: contenido en todas las celdas.
+- No uses `TODO`, `N/A`, `...`, `pendiente` ni placeholders como contenido.
+- No dejes listas, tablas, tarjetas, pasos, opciones o secciones vacías. Si un elemento no aporta contenido, omítelo.
+- Un deck más corto y completo es mejor que uno largo con labels sin cuerpo.
+
 ## 4. Markdown permitido
 
 soffia renderiza Markdown con `markdown-it` en modo seguro (`html: false`).
@@ -581,6 +597,8 @@ El `alt` final es “Lesión con costras”.
 
 ### Política de imágenes web
 
+- **Incluye al menos una imagen web relevante siempre que el tema lo permita.** Debe enseñar algo y tener una URL `https://` directa, `alt`, pie y crédito.
+- Si no encuentras una imagen verificable y con licencia, omítela. No inventes URLs, no generes placeholders ni imágenes.
 - Usa una URL directa al archivo, no a la página del artículo.
 - Verifica que la URL responde y que la licencia permite el uso.
 - Cita fuente y licencia en `credit` o en el pie.
@@ -748,6 +766,7 @@ npm run validate:all
 - frontmatter presente y legible;
 - `id`, `title`, `description`, `tags`, `language`, `estimatedMinutes`;
 - al menos un H2;
+- H2/H3 sin contenido;
 - H3 antes del primer H2;
 - numeración manual en encabezados H1–H3;
 - IDs explícitos repetidos o con formato no recomendado;
@@ -877,7 +896,9 @@ Una subsección dentro de la sección H2 anterior.
 - [ ] Los quizzes tienen opciones, correcta y explicación.
 - [ ] Las tarjetas tienen frente y reverso.
 - [ ] Las referencias son verificables y usan `https://`.
+- [ ] Hay al menos una imagen web relevante cuando el tema lo permite, con `alt`, pie y crédito.
 - [ ] Las imágenes son URLs web directas `https://` o archivos locales aportados por el usuario.
 - [ ] Las figuras web indican fuente y licencia en `credit`.
+- [ ] Ningún encabezado, bloque, tarjeta, paso, opción o referencia queda vacío.
 - [ ] No se ha generado ninguna imagen nueva.
 - [ ] El validador termina con `0 errores`.

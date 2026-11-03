@@ -33,7 +33,7 @@ tema/
 ```
 
 - El archivo principal es Markdown con extensión `.md`.
-- Por defecto, usa **imágenes web directas** con `https://` y atribución. No generes SVGs ni imágenes nuevas.
+- Por defecto, usa **imágenes web directas** con `https://` y atribución. Incluye al menos una imagen web relevante cuando el tema lo permita. No generes SVGs ni imágenes nuevas.
 - Si el usuario aporta imágenes locales, puedes incluirlas en `images/` y referenciarlas con rutas **relativas** al `.md`.
 - Si no hay imágenes locales, no crees la carpeta `images/`.
 - El deck debe poder importarse arrastrando la carpeta completa a la biblioteca de soffia.
@@ -106,7 +106,7 @@ Para resolver este tipo de problema.
 3. **Diseña el esqueleto.** De 8 a 15 secciones H2 para un seminario; cada una con una idea clara. Usa H3 solo cuando una sección tenga varios subtemas reales.
 4. **Escribe el contenido.** Explica antes de enumerar. Define los términos la primera vez. Usa tablas para comparar, pasos para procedimientos y callouts para matices.
 5. **Añade práctica.** Incluye quizzes, flashcards y preguntas abiertas suficientes para cubrir las ideas importantes, no para rellenar.
-6. **Añade imágenes solo si enseñan algo.** Usa una URL web directa, verificable y con licencia clara; añade texto alternativo, pie y crédito. No generes imágenes.
+6. **Añade al menos una imagen web relevante siempre que el tema lo permita.** Usa una URL web directa, verificable y con licencia clara; añade texto alternativo, pie y crédito. Si no encuentras una fuente fiable, omítela. No generes imágenes.
 7. **Valida.** Ejecuta el validador y corrige errores y avisos antes de entregar.
 8. **Entrega.** Si tienes MCP, pregunta el destino y llama a `soffia_save_decks` con todos los decks; guarda los válidos aunque otros fallen y no sobrescribe. Si no tienes MCP, indica la ruta del `.md`, las imágenes web o la carpeta local, y el resultado de la validación.
 
@@ -114,7 +114,10 @@ Para resolver este tipo de problema.
 
 - Escribe en español por defecto. Si el usuario pide otro idioma, cambia el contenido y el campo `language`.
 - Empieza con una introducción breve y unos `:::keypoints` de 3 a 8 ideas.
-- Cada sección H2 debe tener contenido propio; evita secciones vacías o de una sola frase.
+- Cada sección H2 y cada subsección H3 debe tener contenido propio; no encadenes encabezados vacíos ni dejes secciones de una sola frase.
+- Todo bloque debe tener cuerpo real: callouts con texto, keypoints con ítems, pasos con título y contenido, quizzes con opciones y explicación, tarjetas con frente y reverso, referencias con URL y nota, y galerías o figuras con imagen y `alt`.
+- No dejes labels, listas, tablas, tarjetas, pasos, opciones o referencias vacías. Si un elemento no aporta contenido, elimínalo.
+- No uses `TODO`, `N/A`, `...` ni placeholders como contenido. Un deck corto y completo es mejor que uno largo con huecos.
 - No repitas la misma idea en varios bloques con palabras distintas.
 - Las tablas deben comparar dimensiones útiles, no ser listas disfrazadas.
 - Los pasos deben ser accionables y estar en orden.
@@ -148,6 +151,7 @@ El ejemplo `examples/impetigo/seminario.md` del proyecto es la referencia de cal
 8. **Usa IDs estables** en quizzes y tarjetas si quieres conservar el progreso al reimportar.
 9. **Las imágenes web deben ser directas y seguras.** Usa `https://` y una URL que termine en la imagen, no en la página que la contiene.
 10. **No generes imágenes.** No crees SVGs, ilustraciones ni placeholders. Usa fuentes web verificables o archivos que aporte el usuario.
+11. **Todo elemento debe tener contenido.** No dejes encabezados, labels, listas, tablas, tarjetas, pasos, opciones, referencias ni figuras sin cuerpo; si no puedes completarlos, elimínalos.
 
 ## Referencia rápida de bloques
 
@@ -380,8 +384,10 @@ Antes de entregar, el comando debe terminar con `0 errores`. Si hay avisos, rev�
 - [ ] Cada quiz tiene pregunta, opciones, una o más correctas y explicación.
 - [ ] Cada tarjeta tiene frente y reverso.
 - [ ] Las referencias son verificables y usan `https://`.
+- [ ] Hay al menos una imagen web relevante cuando el tema lo permite, con `alt`, pie y crédito.
 - [ ] Las imágenes son URLs web directas `https://` o archivos locales aportados por el usuario.
 - [ ] Cada imagen tiene `alt`; las figuras web tienen pie y crédito.
+- [ ] Ningún encabezado, bloque, tarjeta, paso, opción o referencia queda vacío.
 - [ ] No se ha generado ninguna imagen nueva.
 - [ ] El validador termina con `0 errores`.
 - [ ] La entrega incluye el `.md` y, si hay imágenes locales, la carpeta `images/` completa.

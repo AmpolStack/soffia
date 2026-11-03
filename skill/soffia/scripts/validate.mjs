@@ -1286,6 +1286,41 @@ function validateStructure(model, ctx) {
   }
 }
 
+function validateHeadingContent(model, ctx) {
+  for (let index = 0; index < model.headings.length; index += 1) {
+    const heading = model.headings[index];
+    if (heading.level !== 2 && heading.level !== 3) continue;
+
+    let next = null;
+    for (
+      let cursor = index + 1;
+      cursor < model.headings.length;
+      cursor += 1
+    ) {
+      if (model.headings[cursor].level <= heading.level) {
+        next = model.headings[cursor];
+        break;
+      }
+    }
+
+    // heading.line es 1-based; la línea siguiente está en el mismo índice.
+    const start = heading.line;
+    const end = next ? next.line - 1 : model.bodyLines.length;
+    const hasContent = model.bodyLines
+      .slice(start, end)
+      .some((line) => line.trim() !== '');
+
+    if (!hasContent) {
+      add(
+        ctx.report,
+        'warning',
+        `La sección "${heading.text}" no tiene contenido. Añade texto o elimina el encabezado.`,
+        heading.line,
+      );
+    }
+  }
+}
+
 function validateGlobalImages(model, ctx) {
   for (const image of model.images) {
     checkAlt(ctx, image);
@@ -2097,6 +2132,7 @@ function validateFile(file, options, shared) {
 
   validateFrontmatter(model, ctx);
   validateStructure(model, ctx);
+  validateHeadingContent(model, ctx);
   validateGlobalImages(model, ctx);
   scanRawHtml(bodyLines, report);
 

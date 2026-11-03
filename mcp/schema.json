@@ -71,9 +71,16 @@
       "children": false
     }
   },
+  "contentPolicy": {
+    "everyHeadingHasContent": true,
+    "noEmptyBlocks": true,
+    "noEmptyListsOrTables": true,
+    "forbiddenPlaceholders": ["TODO", "N/A", "...", "pendiente"]
+  },
   "imagePolicy": {
     "preferred": "direct https:// image URL",
     "local": "relative path; import the complete folder",
+    "recommendedWhenRelevant": "include at least one relevant web image when the topic allows it",
     "noGeneration": true,
     "requiresAlt": true,
     "requiresCreditForWebFigures": true,

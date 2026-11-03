@@ -50,6 +50,75 @@
   max-width: 78ch;
 }
 
+.format-skill {
+  margin-top: 48px;
+  padding-top: 28px;
+  border-top: 1px solid var(--line);
+}
+
+.format-skill__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.format-skill__head .button {
+  flex: none;
+}
+
+.format-skill h2 {
+  margin-top: 10px;
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+}
+
+.format-skill p {
+  max-width: 65ch;
+  margin-top: 10px;
+  color: var(--fg-2);
+  font-size: var(--text-sm);
+  line-height: 1.6;
+}
+
+.format-skill__details {
+  margin-top: 20px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+
+.format-skill__details summary {
+  padding: 12px 16px;
+  color: var(--fg-2);
+  font-size: var(--text-sm);
+  font-weight: 550;
+  cursor: pointer;
+}
+
+.format-skill__details pre {
+  max-height: 460px;
+  margin: 0;
+  padding: 16px;
+  overflow: auto;
+  border-top: 1px solid var(--line-soft);
+  background: var(--code-bg);
+  font-size: var(--text-xs);
+  line-height: 1.55;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.format-skill__details code {
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: inherit;
+}
+
 @media (max-width: 620px) {
   .format-header {
     padding: 16px 14px 0;
@@ -75,5 +144,22 @@
   .format-hero .button-row .button {
     flex: 1 1 45%;
     justify-content: center;
+  }
+
+  .format-skill__head {
+    flex-direction: column;
+  }
+
+  .format-skill__head .button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .format-skill h2 {
+    font-size: 28px;
+  }
+
+  .format-skill__details pre {
+    max-height: 360px;
   }
 }
