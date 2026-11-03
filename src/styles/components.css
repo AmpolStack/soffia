@@ -127,15 +127,15 @@
 }
 
 .segmented__sample--compact {
-  font-size: 12px;
+  font-size: 10px;
 }
 
 .segmented__sample--normal {
-  font-size: 15px;
+  font-size: 12px;
 }
 
 .segmented__sample--large {
-  font-size: 19px;
+  font-size: 15px;
 }
 
 .segmented--compact {
@@ -1934,7 +1934,7 @@
 
   .figure__caption,
   .gallery figcaption {
-    font-size: 13.5px;
+    font-size: var(--text-xs);
   }
 
   .qa-inline__top {
@@ -1948,7 +1948,7 @@
   .qa-inline__actions .button {
     min-height: 34px;
     padding: 5px 8px;
-    font-size: 13px;
+    font-size: var(--text-xs);
   }
 
   .modal-panel__header {
