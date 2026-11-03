@@ -136,6 +136,11 @@ export function ReaderView() {
 
   const handlePrint = () => {
     setMobileToc(false);
+    document
+      .querySelectorAll<HTMLElement>('.table-block.is-fullscreen')
+      .forEach((table) =>
+        table.dispatchEvent(new CustomEvent('soffia:close-table-fullscreen')),
+      );
     setPrinting(true);
   };
 

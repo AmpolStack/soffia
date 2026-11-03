@@ -4,11 +4,15 @@ import { useDeck } from '../contexts/DeckContext';
 import { useToast } from '../contexts/ToastContext';
 import { isRemoteImage } from '../lib/images';
 import { hashString } from '../lib/format/utils';
+import {
+  allocateTableWidths,
+  type TableLayoutMode,
+} from '../lib/tableLayout';
 
-function headerMinWidth(header: HTMLTableCellElement): number {
-  const style = window.getComputedStyle(header);
+function measureTextWidth(text: string, style: CSSStyleDeclaration): number {
+  if (!text.trim()) return 0;
   const probe = document.createElement('span');
-  probe.textContent = header.textContent ?? '';
+  probe.textContent = text;
   probe.style.position = 'absolute';
   probe.style.visibility = 'hidden';
   probe.style.whiteSpace = 'nowrap';
@@ -19,12 +23,66 @@ function headerMinWidth(header: HTMLTableCellElement): number {
   probe.style.letterSpacing = style.letterSpacing;
   probe.style.textTransform = style.textTransform;
   document.body.appendChild(probe);
-  const contentWidth = probe.getBoundingClientRect().width;
+  const width = probe.getBoundingClientRect().width;
   probe.remove();
-  const padding =
+  return width;
+}
+
+function paddingWidth(style: CSSStyleDeclaration): number {
+  return (
     Number.parseFloat(style.paddingLeft || '0') +
-    Number.parseFloat(style.paddingRight || '0');
-  return Math.max(56, Math.min(260, Math.ceil(contentWidth + padding + 2)));
+    Number.parseFloat(style.paddingRight || '0')
+  );
+}
+
+function longestWordWidth(text: string, style: CSSStyleDeclaration): number {
+  return text
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .reduce((width, word) => Math.max(width, measureTextWidth(word, style)), 0);
+}
+
+function headerMinWidth(header: HTMLTableCellElement): number {
+  const style = window.getComputedStyle(header);
+  const contentWidth = longestWordWidth(header.textContent ?? '', style);
+  return Math.max(
+    56,
+    Math.min(240, Math.ceil(contentWidth + paddingWidth(style) + 2)),
+  );
+}
+
+function headerPreferredWidth(header: HTMLTableCellElement): number {
+  const style = window.getComputedStyle(header);
+  const contentWidth = measureTextWidth(header.textContent ?? '', style);
+  return Math.max(
+    56,
+    Math.min(360, Math.ceil(contentWidth + paddingWidth(style) + 2)),
+  );
+}
+
+function cellPreferredWidth(cell: HTMLTableCellElement): number {
+  const style = window.getComputedStyle(cell);
+  const contentWidth = measureTextWidth(cell.textContent ?? '', style);
+  return Math.max(
+    56,
+    Math.min(360, Math.ceil(contentWidth + paddingWidth(style) + 2)),
+  );
+}
+
+function mapRowCells(
+  row: HTMLTableRowElement,
+  columnCount: number,
+): Array<HTMLTableCellElement | undefined> {
+  const cells: Array<HTMLTableCellElement | undefined> =
+    new Array(columnCount);
+  let column = 0;
+  for (const cell of Array.from(row.cells)) {
+    if (column >= columnCount) break;
+    cells[column] = cell;
+    column += Math.max(1, cell.colSpan || 1);
+  }
+  return cells;
 }
 
 export function Markdown({
@@ -59,10 +117,31 @@ export function Markdown({
       const wrapper = table.parentElement;
       if (!wrapper) return;
 
-      const headers = Array.from(table.querySelectorAll<HTMLTableCellElement>('thead th'));
-      const rows = Array.from(table.querySelectorAll<HTMLTableRowElement>('tbody tr'));
+      const headers = Array.from(
+        table.querySelectorAll<HTMLTableCellElement>('thead th'),
+      );
+      const rows = Array.from(
+        table.querySelectorAll<HTMLTableRowElement>('tbody tr'),
+      );
       if (headers.length === 0) return;
+
       const headerMinWidths = headers.map(headerMinWidth);
+      const headerPreferredWidths = headers.map(headerPreferredWidth);
+      // Medir todas las celdas de tablas grandes puede ser costoso; con las
+      // primeras filas basta para estimar el reparto ideal.
+      const sampleRows = rows.slice(0, 30);
+      const sampledCells = sampleRows.map((row) =>
+        mapRowCells(row, headers.length),
+      );
+      const preferredWidths = headerMinWidths.map((minimum, columnIndex) => {
+        let width = Math.max(minimum, headerPreferredWidths[columnIndex] ?? 0);
+        sampledCells.forEach((cells) => {
+          const cell = cells[columnIndex];
+          if (!cell || cell.colSpan > 1) return;
+          width = Math.max(width, cellPreferredWidth(cell));
+        });
+        return width;
+      });
 
       const tableKey = hashString(
         `${deckId}|${index}|${table.textContent ?? ''}`,
@@ -73,7 +152,7 @@ export function Markdown({
       table.style.width = '100%';
       wrapper.classList.add('table-resizable');
 
-      // El botón de restablecer vive fuera del contenedor con scroll y borde
+      // La barra de acciones vive fuera del contenedor con scroll y borde
       // de la tabla: así no altera su gap ni su margen interior.
       let block = wrapper.parentElement;
       if (!block?.classList.contains('table-block')) {
@@ -82,40 +161,183 @@ export function Markdown({
         wrapper.parentElement?.insertBefore(block, wrapper);
         block.appendChild(wrapper);
       }
+      if (!block) return;
       block.querySelector(':scope > .table-actions')?.remove();
 
       // Se recrea el colgroup para no arrastrar anchos de una vista anterior.
       table.querySelector('colgroup')?.remove();
       const colgroup = document.createElement('colgroup');
-      headers.forEach(() => colgroup.appendChild(document.createElement('col')));
+      headers.forEach(() =>
+        colgroup.appendChild(document.createElement('col')),
+      );
       table.prepend(colgroup);
-      const columns = Array.from(colgroup.querySelectorAll<HTMLTableColElement>('col'));
+      const columns = Array.from(
+        colgroup.querySelectorAll<HTMLTableColElement>('col'),
+      );
 
-      let saved: { columns?: number[]; rows?: number[] } | null = null;
+      type SavedTableLayout = {
+        mode?: TableLayoutMode;
+        columns?: number[];
+        rows?: number[];
+      };
+
+      let saved: SavedTableLayout | null = null;
       try {
-        saved = JSON.parse(localStorage.getItem(storageKey) ?? 'null');
+        saved = JSON.parse(
+          localStorage.getItem(storageKey) ?? 'null',
+        ) as SavedTableLayout | null;
       } catch {
         saved = null;
       }
 
-      const apply = () => {
-        columns.forEach((column, columnIndex) => {
-          const width = saved?.columns?.[columnIndex];
-          if (width) column.style.width = `${width}px`;
-        });
+      const hasSavedColumns =
+        Array.isArray(saved?.columns) &&
+        saved.columns.some(
+          (width) => Number.isFinite(width) && width > 0,
+        );
+      let mode: TableLayoutMode =
+        saved?.mode ?? (hasSavedColumns ? 'custom' : 'fit');
+      if (mode !== 'fit' && mode !== 'equal' && mode !== 'custom') {
+        mode = hasSavedColumns ? 'custom' : 'fit';
+      }
+      if (mode === 'custom' && !hasSavedColumns) {
+        mode = 'fit';
+      }
+
+      let isFullscreen = false;
+      let isResizingRow = false;
+      let backdrop: HTMLDivElement | null = null;
+      let resizeFrame = 0;
+
+      const actions = document.createElement('div');
+      actions.className = 'table-actions';
+      actions.setAttribute('role', 'toolbar');
+      actions.setAttribute('aria-label', 'Opciones de tabla');
+
+      const makeAction = (
+        label: string,
+        action: string,
+        extraClass = '',
+      ) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = `table-action ${extraClass}`.trim();
+        button.dataset.action = action;
+        button.textContent = label;
+        actions.appendChild(button);
+        return button;
+      };
+
+      const fitButton = makeAction('Ajustar', 'fit', 'table-action--fit');
+      fitButton.title =
+        'Distribuir las columnas según el encabezado y el contenido';
+      const equalButton = makeAction('Igualar', 'equal', 'table-action--equal');
+      equalButton.title =
+        'Repartir el ancho de las columnas a partes iguales';
+      const fullscreenButton = makeAction(
+        'Pantalla completa',
+        'fullscreen',
+        'table-action--fullscreen',
+      );
+      fullscreenButton.title = 'Ver la tabla a pantalla completa';
+      const resetButton = makeAction('Restablecer', 'reset', 'table-reset');
+      resetButton.title = 'Quitar los anchos y altos personalizados';
+      block.appendChild(actions);
+
+      const syncActions = () => {
+        fitButton.classList.toggle('is-active', mode === 'fit');
+        fitButton.setAttribute('aria-pressed', String(mode === 'fit'));
+        equalButton.classList.toggle('is-active', mode === 'equal');
+        equalButton.setAttribute('aria-pressed', String(mode === 'equal'));
+        fullscreenButton.classList.toggle('is-active', isFullscreen);
+        fullscreenButton.setAttribute('aria-pressed', String(isFullscreen));
+        fullscreenButton.textContent = isFullscreen
+          ? 'Salir de pantalla completa'
+          : 'Pantalla completa';
+      };
+
+      const applyRows = () => {
         rows.forEach((row, rowIndex) => {
           const height = saved?.rows?.[rowIndex];
-          if (height) row.style.height = `${height}px`;
+          row.style.height =
+            Number.isFinite(height) && (height ?? 0) > 0
+              ? `${height}px`
+              : '';
         });
-        if (saved?.rows?.length) table.style.tableLayout = 'fixed';
       };
-      apply();
+
+      const clearColumnWidths = () => {
+        columns.forEach((column) => {
+          column.style.width = '';
+        });
+        table.style.minWidth = '';
+      };
+
+      const applyWidths = (widths: number[], minWidth: number) => {
+        columns.forEach((column, columnIndex) => {
+          const width = widths[columnIndex];
+          column.style.width = width ? `${width}px` : '';
+        });
+        table.style.width = '100%';
+        table.style.minWidth = minWidth > 0 ? `${Math.ceil(minWidth)}px` : '';
+      };
+
+      const applyFit = (nextMode: 'fit' | 'equal') => {
+        const available = Math.max(1, wrapper.clientWidth);
+        const result = allocateTableWidths({
+          available,
+          minWidths: headerMinWidths,
+          weights:
+            nextMode === 'fit'
+              ? preferredWidths
+              : headerMinWidths.map(() => 1),
+        });
+        applyWidths(result.widths, result.minWidth);
+        applyRows();
+      };
+
+      const applyCustom = () => {
+        clearColumnWidths();
+        const savedColumns = Array.isArray(saved?.columns)
+          ? saved.columns
+          : [];
+        savedColumns.forEach((width, columnIndex) => {
+          const column = columns[columnIndex];
+          if (!column || !Number.isFinite(width) || width <= 0) return;
+          column.style.width = `${width}px`;
+        });
+        const total = savedColumns.reduce(
+          (sum, width) =>
+            sum + (Number.isFinite(width) && width > 0 ? width : 0),
+          0,
+        );
+        table.style.minWidth = total > 0 ? `${Math.ceil(total)}px` : '';
+        applyRows();
+      };
+
+      const apply = () => {
+        const nextMode = mode;
+        if (nextMode === 'custom') applyCustom();
+        else applyFit(nextMode);
+        syncActions();
+      };
 
       const persist = () => {
-        const layout = {
-          columns: columns.map((column) => Math.round(column.getBoundingClientRect().width)),
-          rows: rows.map((row) => Math.round(row.getBoundingClientRect().height)),
+        const layout: SavedTableLayout = {
+          mode,
+          columns: columns.map((column) =>
+            Math.round(column.getBoundingClientRect().width),
+          ),
+          // Solo se guardan las alturas ajustadas a mano; las automáticas
+          // deben seguir respondiendo al ancho disponible.
+          rows: rows.map((row) => {
+            const height = Number.parseFloat(row.style.height);
+            return Number.isFinite(height) && height > 0
+              ? Math.round(height)
+              : 0;
+          }),
         };
+        saved = layout;
         try {
           localStorage.setItem(storageKey, JSON.stringify(layout));
         } catch {
@@ -123,25 +345,106 @@ export function Markdown({
         }
       };
 
+      const setMode = (nextMode: TableLayoutMode) => {
+        mode = nextMode;
+        apply();
+        persist();
+      };
+
       const reset = (event: Event) => {
         event.stopPropagation();
         saved = null;
-        columns.forEach((column) => { column.style.width = ''; });
-        rows.forEach((row) => { row.style.height = ''; });
-        try { localStorage.removeItem(storageKey); } catch { /* noop */ }
+        mode = 'fit';
+        clearColumnWidths();
+        rows.forEach((row) => {
+          row.style.height = '';
+        });
+        try {
+          localStorage.removeItem(storageKey);
+        } catch {
+          // Sin localStorage: no hay nada que borrar.
+        }
+        apply();
       };
 
-      const actions = document.createElement('div');
-      actions.className = 'table-actions';
-      const resetButton = document.createElement('button');
-      resetButton.type = 'button';
-      resetButton.className = 'table-reset';
-      resetButton.textContent = 'Restablecer tabla';
-      resetButton.addEventListener('click', reset);
-      actions.appendChild(resetButton);
-      block.appendChild(actions);
+      const releaseBodyLock = () => {
+        if (!document.querySelector('.table-block.is-fullscreen')) {
+          document.body.classList.remove('has-table-fullscreen');
+        }
+      };
 
-      const addColumnHandle = (header: HTMLTableCellElement, columnIndex: number) => {
+      const closeFullscreen = (restoreFocus = true) => {
+        if (!isFullscreen) return;
+        isFullscreen = false;
+        block.classList.remove('is-fullscreen');
+        backdrop?.remove();
+        backdrop = null;
+        releaseBodyLock();
+        syncActions();
+        if (restoreFocus) fullscreenButton.focus({ preventScroll: true });
+      };
+
+      const openFullscreen = () => {
+        if (isFullscreen) return;
+        document
+          .querySelectorAll<HTMLElement>('.table-block.is-fullscreen')
+          .forEach((other) => {
+            if (other !== block) {
+              other.dispatchEvent(
+                new CustomEvent('soffia:close-table-fullscreen'),
+              );
+            }
+          });
+        isFullscreen = true;
+        block.classList.add('is-fullscreen');
+        document.body.classList.add('has-table-fullscreen');
+        backdrop = document.createElement('div');
+        backdrop.className = 'table-fullscreen-backdrop';
+        backdrop.addEventListener('click', () => closeFullscreen(), { signal });
+        block.parentElement?.insertBefore(backdrop, block);
+        syncActions();
+        window.requestAnimationFrame(() => {
+          if (!isFullscreen) return;
+          const nextMode = mode;
+          if (nextMode !== 'custom') applyFit(nextMode);
+        });
+        fullscreenButton.focus({ preventScroll: true });
+      };
+
+      fitButton.addEventListener('click', () => setMode('fit'), { signal });
+      equalButton.addEventListener('click', () => setMode('equal'), { signal });
+      resetButton.addEventListener('click', reset, { signal });
+      fullscreenButton.addEventListener(
+        'click',
+        () => {
+          if (isFullscreen) closeFullscreen();
+          else openFullscreen();
+        },
+        { signal },
+      );
+      block.addEventListener(
+        'soffia:close-table-fullscreen',
+        () => closeFullscreen(false),
+        { signal },
+      );
+
+      const onFullscreenKeyDown = (event: KeyboardEvent) => {
+        if (
+          event.key !== 'Escape' ||
+          !isFullscreen ||
+          event.defaultPrevented
+        ) {
+          return;
+        }
+        event.preventDefault();
+        closeFullscreen();
+      };
+      window.addEventListener('keydown', onFullscreenKeyDown, { signal });
+
+      const addColumnHandle = (
+        header: HTMLTableCellElement,
+        columnIndex: number,
+      ) => {
         header.classList.add('table-has-resize');
         header
           .querySelectorAll(':scope > .table-resize--col')
@@ -157,32 +460,57 @@ export function Markdown({
         const minWidth = headerMinWidths[columnIndex] ?? 48;
         const start = (event: PointerEvent) => {
           event.preventDefault();
+          mode = 'custom';
+          syncActions();
           const startX = event.clientX;
           const startWidth = columns[columnIndex].getBoundingClientRect().width;
           const move = (moveEvent: PointerEvent) => {
-            const width = Math.max(minWidth, startWidth + moveEvent.clientX - startX);
+            const width = Math.max(
+              minWidth,
+              startWidth + moveEvent.clientX - startX,
+            );
             columns[columnIndex].style.width = `${width}px`;
+            const total = columns.reduce(
+              (sum, column) => sum + column.getBoundingClientRect().width,
+              0,
+            );
+            table.style.minWidth = `${Math.ceil(total)}px`;
           };
           const end = () => {
             window.removeEventListener('pointermove', move);
             window.removeEventListener('pointerup', end);
+            window.removeEventListener('pointercancel', end);
             persist();
           };
-          window.addEventListener('pointermove', move);
-          window.addEventListener('pointerup', end, { once: true });
+          window.addEventListener('pointermove', move, { signal });
+          window.addEventListener('pointerup', end, { signal });
+          window.addEventListener('pointercancel', end, { signal });
         };
 
-        handle.addEventListener('pointerdown', start);
-        handle.addEventListener('keydown', (event) => {
-          if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
-          event.preventDefault();
-          const current = columns[columnIndex].getBoundingClientRect().width;
-          columns[columnIndex].style.width = `${Math.max(
-            minWidth,
-            current + (event.key === 'ArrowRight' ? 8 : -8),
-          )}px`;
-          persist();
-        });
+        handle.addEventListener('pointerdown', start, { signal });
+        handle.addEventListener(
+          'keydown',
+          (event) => {
+            if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') {
+              return;
+            }
+            event.preventDefault();
+            mode = 'custom';
+            syncActions();
+            const current = columns[columnIndex].getBoundingClientRect().width;
+            columns[columnIndex].style.width = `${Math.max(
+              minWidth,
+              current + (event.key === 'ArrowRight' ? 8 : -8),
+            )}px`;
+            const total = columns.reduce(
+              (sum, column) => sum + column.getBoundingClientRect().width,
+              0,
+            );
+            table.style.minWidth = `${Math.ceil(total)}px`;
+            persist();
+          },
+          { signal },
+        );
       };
 
       headers.forEach(addColumnHandle);
@@ -204,33 +532,62 @@ export function Markdown({
 
         const start = (event: PointerEvent) => {
           event.preventDefault();
+          isResizingRow = true;
           const startY = event.clientY;
           const startHeight = row.getBoundingClientRect().height;
           const move = (moveEvent: PointerEvent) => {
-            row.style.height = `${Math.max(28, startHeight + moveEvent.clientY - startY)}px`;
+            row.style.height = `${Math.max(
+              28,
+              startHeight + moveEvent.clientY - startY,
+            )}px`;
           };
           const end = () => {
+            isResizingRow = false;
             window.removeEventListener('pointermove', move);
             window.removeEventListener('pointerup', end);
+            window.removeEventListener('pointercancel', end);
             persist();
           };
-          window.addEventListener('pointermove', move);
-          window.addEventListener('pointerup', end, { once: true });
+          window.addEventListener('pointermove', move, { signal });
+          window.addEventListener('pointerup', end, { signal });
+          window.addEventListener('pointercancel', end, { signal });
         };
 
-        handle.addEventListener('pointerdown', start);
-        handle.addEventListener('keydown', (event) => {
-          if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') return;
-          event.preventDefault();
-          const current = row.getBoundingClientRect().height;
-          row.style.height = `${Math.max(28, current + (event.key === 'ArrowDown' ? 8 : -8))}px`;
-          persist();
-        });
+        handle.addEventListener('pointerdown', start, { signal });
+        handle.addEventListener(
+          'keydown',
+          (event) => {
+            if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') return;
+            event.preventDefault();
+            const current = row.getBoundingClientRect().height;
+            row.style.height = `${Math.max(
+              28,
+              current + (event.key === 'ArrowDown' ? 8 : -8),
+            )}px`;
+            persist();
+          },
+          { signal },
+        );
       });
 
-      // Aborta los listeners base si el componente se desmonta.
+      const resizeObserver = new ResizeObserver(() => {
+        if (mode === 'custom' || isResizingRow) return;
+        window.cancelAnimationFrame(resizeFrame);
+        resizeFrame = window.requestAnimationFrame(() => {
+          const nextMode = mode;
+          if (nextMode !== 'custom' && !isResizingRow) applyFit(nextMode);
+        });
+      });
+      resizeObserver.observe(wrapper);
+
+      apply();
+
       signal.addEventListener('abort', () => {
-        resetButton.removeEventListener('click', reset);
+        window.cancelAnimationFrame(resizeFrame);
+        resizeObserver.disconnect();
+        closeFullscreen(false);
+        backdrop?.remove();
+        releaseBodyLock();
       });
     });
 
