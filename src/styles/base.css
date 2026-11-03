@@ -568,6 +568,26 @@ body.has-table-fullscreen {
   }
 }
 
+@media (hover: none), (pointer: coarse) {
+  .table-resize {
+    display: none;
+  }
+
+  .table-actions {
+    position: static;
+    justify-content: flex-start;
+    padding-top: 6px;
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .table-action,
+  .table-reset {
+    min-height: 36px;
+    padding: 6px 12px;
+  }
+}
+
 @media print {
   .table-resize,
   .table-reset,

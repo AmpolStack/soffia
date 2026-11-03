@@ -570,21 +570,26 @@ export function Markdown({
         );
       });
 
-      const resizeObserver = new ResizeObserver(() => {
-        if (mode === 'custom' || isResizingRow) return;
-        window.cancelAnimationFrame(resizeFrame);
-        resizeFrame = window.requestAnimationFrame(() => {
-          const nextMode = mode;
-          if (nextMode !== 'custom' && !isResizingRow) applyFit(nextMode);
-        });
-      });
-      resizeObserver.observe(wrapper);
+      const resizeObserver =
+        typeof ResizeObserver === 'undefined'
+          ? null
+          : new ResizeObserver(() => {
+              if (mode === 'custom' || isResizingRow) return;
+              window.cancelAnimationFrame(resizeFrame);
+              resizeFrame = window.requestAnimationFrame(() => {
+                const nextMode = mode;
+                if (nextMode !== 'custom' && !isResizingRow) {
+                  applyFit(nextMode);
+                }
+              });
+            });
+      resizeObserver?.observe(wrapper);
 
       apply();
 
       signal.addEventListener('abort', () => {
         window.cancelAnimationFrame(resizeFrame);
-        resizeObserver.disconnect();
+        resizeObserver?.disconnect();
         closeFullscreen(false);
         backdrop?.remove();
         releaseBodyLock();
