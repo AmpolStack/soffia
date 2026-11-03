@@ -139,21 +139,21 @@
     transform: translateY(-50%);
     -webkit-mask-image: linear-gradient(
       90deg,
-      rgba(0, 0, 0, 0.88) 0%,
-      rgba(0, 0, 0, 0.66) 30%,
-      rgba(0, 0, 0, 0.36) 54%,
-      rgba(0, 0, 0, 0.12) 74%,
-      rgba(0, 0, 0, 0.02) 86%,
-      transparent 90%
+      rgba(0, 0, 0, 0.93) 0%,
+      rgba(0, 0, 0, 0.75) 30%,
+      rgba(0, 0, 0, 0.44) 54%,
+      rgba(0, 0, 0, 0.17) 74%,
+      rgba(0, 0, 0, 0.04) 86%,
+      transparent 91%
     );
     mask-image: linear-gradient(
       90deg,
-      rgba(0, 0, 0, 0.88) 0%,
-      rgba(0, 0, 0, 0.66) 30%,
-      rgba(0, 0, 0, 0.36) 54%,
-      rgba(0, 0, 0, 0.12) 74%,
-      rgba(0, 0, 0, 0.02) 86%,
-      transparent 90%
+      rgba(0, 0, 0, 0.93) 0%,
+      rgba(0, 0, 0, 0.75) 30%,
+      rgba(0, 0, 0, 0.44) 54%,
+      rgba(0, 0, 0, 0.17) 74%,
+      rgba(0, 0, 0, 0.04) 86%,
+      transparent 91%
     );
   }
 
@@ -168,13 +168,17 @@
     font-weight: 500;
     letter-spacing: -0.045em;
     line-height: 0.82;
-    opacity: 0.26;
+    opacity: 0.32;
     text-align: center;
     text-overflow: ellipsis;
     text-shadow: 0 0 18px var(--accent-soft);
     white-space: nowrap;
     writing-mode: vertical-rl;
     transform: rotate(180deg);
+  }
+
+  :root[data-theme='light'] .deck-watermark__text {
+    opacity: 0.44;
   }
 }
 
