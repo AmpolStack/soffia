@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, type MouseEvent } from 'react';
 import { renderInline, renderMarkdown } from '../lib/format/renderMarkdown';
 import { useDeck } from '../contexts/DeckContext';
+import { useSettings } from '../contexts/SettingsContext';
 import { useToast } from '../contexts/ToastContext';
 import { isRemoteImage } from '../lib/images';
 import { hashString } from '../lib/format/utils';
@@ -95,6 +96,7 @@ export function Markdown({
   compact?: boolean;
 }) {
   const { deck, resolveSrc } = useDeck();
+  const { settings } = useSettings();
   const { toast } = useToast();
   const ref = useRef<HTMLDivElement | null>(null);
   const html = useMemo(
@@ -152,8 +154,18 @@ export function Markdown({
       table.style.width = '100%';
       wrapper.classList.add('table-resizable');
 
-      // La barra de acciones vive fuera del contenedor con scroll y borde
-      // de la tabla: así no altera su gap ni su margen interior.
+      // En móvil cada columna conserva un ancho legible; si no cabe, la
+      // tabla se desplaza en horizontal en lugar de comprimir el texto.
+      const mobileMinWidths = headerMinWidths.map((minimum, columnIndex) => {
+        const preferred = preferredWidths[columnIndex] ?? minimum;
+        return Math.max(minimum, Math.min(240, Math.max(96, preferred)));
+      });
+      const mobileQuery = window.matchMedia(
+        '(max-width: 720px), (hover: none), (pointer: coarse)',
+      );
+
+      // Las acciones viven fuera del contenedor con scroll y borde de la
+      // tabla: así no alteran su gap ni su margen interior.
       let block = wrapper.parentElement;
       if (!block?.classList.contains('table-block')) {
         block = document.createElement('div');
@@ -162,7 +174,11 @@ export function Markdown({
         block.appendChild(wrapper);
       }
       if (!block) return;
-      block.querySelector(':scope > .table-actions')?.remove();
+      block
+        .querySelectorAll(
+          ':scope > .table-actions, :scope > .table-fullscreen-close',
+        )
+        .forEach((node) => node.remove());
 
       // Se recrea el colgroup para no arrastrar anchos de una vista anterior.
       table.querySelector('colgroup')?.remove();
@@ -206,17 +222,37 @@ export function Markdown({
 
       let isFullscreen = false;
       let isResizingRow = false;
+      let controlsOpen = false;
       let backdrop: HTMLDivElement | null = null;
       let resizeFrame = 0;
+      let overflowFrame = 0;
 
-      const actions = document.createElement('div');
-      actions.className = 'table-actions';
-      actions.setAttribute('role', 'toolbar');
-      actions.setAttribute('aria-label', 'Opciones de tabla');
+      type TableAction = 'fit' | 'equal' | 'fullscreen' | 'reset';
+
+      const makeActions = (position: 'top' | 'bottom') => {
+        const bar = document.createElement('div');
+        bar.className = `table-actions table-actions--${position}`;
+        bar.setAttribute('role', 'toolbar');
+        bar.setAttribute(
+          'aria-label',
+          `Opciones de tabla, ${position === 'top' ? 'arriba' : 'abajo'}`,
+        );
+        return bar;
+      };
+
+      const topActions = makeActions('top');
+      const bottomActions = makeActions('bottom');
+      const actionButtons: Record<TableAction, HTMLButtonElement[]> = {
+        fit: [],
+        equal: [],
+        fullscreen: [],
+        reset: [],
+      };
 
       const makeAction = (
+        bar: HTMLDivElement,
         label: string,
-        action: string,
+        action: TableAction,
         extraClass = '',
       ) => {
         const button = document.createElement('button');
@@ -224,36 +260,72 @@ export function Markdown({
         button.className = `table-action ${extraClass}`.trim();
         button.dataset.action = action;
         button.textContent = label;
-        actions.appendChild(button);
+        bar.appendChild(button);
+        actionButtons[action].push(button);
         return button;
       };
 
-      const fitButton = makeAction('Ajustar', 'fit', 'table-action--fit');
-      fitButton.title =
-        'Distribuir las columnas según el encabezado y el contenido';
-      const equalButton = makeAction('Igualar', 'equal', 'table-action--equal');
-      equalButton.title =
-        'Repartir el ancho de las columnas a partes iguales';
-      const fullscreenButton = makeAction(
-        'Pantalla completa',
-        'fullscreen',
-        'table-action--fullscreen',
-      );
-      fullscreenButton.title = 'Ver la tabla a pantalla completa';
-      const resetButton = makeAction('Restablecer', 'reset', 'table-reset');
-      resetButton.title = 'Quitar los anchos y altos personalizados';
-      block.appendChild(actions);
+      [topActions, bottomActions].forEach((bar) => {
+        const fitButton = makeAction(bar, 'Ajustar', 'fit', 'table-action--fit');
+        fitButton.title =
+          'Distribuir las columnas según el encabezado y el contenido';
+        const equalButton = makeAction(
+          bar,
+          'Igualar',
+          'equal',
+          'table-action--equal',
+        );
+        equalButton.title =
+          'Repartir el ancho de las columnas a partes iguales';
+        const fullscreenButton = makeAction(
+          bar,
+          'Pantalla completa',
+          'fullscreen',
+          'table-action--fullscreen',
+        );
+        fullscreenButton.title = 'Ver la tabla a pantalla completa';
+        const resetButton = makeAction(
+          bar,
+          'Restablecer',
+          'reset',
+          'table-reset',
+        );
+        resetButton.title = 'Quitar los anchos y altos personalizados';
+      });
+
+      const closeButton = document.createElement('button');
+      closeButton.type = 'button';
+      closeButton.className = 'table-fullscreen-close';
+      closeButton.setAttribute('aria-label', 'Salir de pantalla completa');
+      closeButton.title = 'Salir de pantalla completa';
+      closeButton.textContent = '×';
+      closeButton.hidden = true;
+
+      block.insertBefore(topActions, wrapper);
+      block.appendChild(wrapper);
+      block.appendChild(bottomActions);
+      block.appendChild(closeButton);
 
       const syncActions = () => {
-        fitButton.classList.toggle('is-active', mode === 'fit');
-        fitButton.setAttribute('aria-pressed', String(mode === 'fit'));
-        equalButton.classList.toggle('is-active', mode === 'equal');
-        equalButton.setAttribute('aria-pressed', String(mode === 'equal'));
-        fullscreenButton.classList.toggle('is-active', isFullscreen);
-        fullscreenButton.setAttribute('aria-pressed', String(isFullscreen));
-        fullscreenButton.textContent = isFullscreen
-          ? 'Salir de pantalla completa'
-          : 'Pantalla completa';
+        const setActive = (
+          buttons: HTMLButtonElement[],
+          active: boolean,
+        ) => {
+          buttons.forEach((button) => {
+            button.classList.toggle('is-active', active);
+            button.setAttribute('aria-pressed', String(active));
+          });
+        };
+
+        setActive(actionButtons.fit, mode === 'fit');
+        setActive(actionButtons.equal, mode === 'equal');
+        setActive(actionButtons.fullscreen, isFullscreen);
+        actionButtons.fullscreen.forEach((button) => {
+          button.hidden = isFullscreen;
+        });
+        closeButton.hidden = !isFullscreen;
+        block.classList.toggle('is-fullscreen', isFullscreen);
+        block.classList.toggle('is-controls-open', controlsOpen);
       };
 
       const applyRows = () => {
@@ -273,27 +345,48 @@ export function Markdown({
         table.style.minWidth = '';
       };
 
-      const applyWidths = (widths: number[], minWidth: number) => {
+      const syncOverflow = () => {
+        const overflowing = wrapper.scrollWidth > wrapper.clientWidth + 1;
+        wrapper.classList.toggle('has-overflow', overflowing);
+        if (overflowing) wrapper.tabIndex = 0;
+        else wrapper.removeAttribute('tabindex');
+      };
+
+      const scheduleOverflowSync = () => {
+        window.cancelAnimationFrame(overflowFrame);
+        overflowFrame = window.requestAnimationFrame(syncOverflow);
+      };
+
+      const applyWidths = (
+        widths: number[],
+        minWidth: number,
+        overflow: boolean,
+      ) => {
         columns.forEach((column, columnIndex) => {
           const width = widths[columnIndex];
           column.style.width = width ? `${width}px` : '';
         });
         table.style.width = '100%';
-        table.style.minWidth = minWidth > 0 ? `${Math.ceil(minWidth)}px` : '';
+        table.style.minWidth =
+          overflow && minWidth > 0 ? `${Math.ceil(minWidth)}px` : '';
       };
 
       const applyFit = (nextMode: 'fit' | 'equal') => {
         const available = Math.max(1, wrapper.clientWidth);
+        const minWidths = mobileQuery.matches
+          ? mobileMinWidths
+          : headerMinWidths;
         const result = allocateTableWidths({
           available,
-          minWidths: headerMinWidths,
+          minWidths,
           weights:
             nextMode === 'fit'
               ? preferredWidths
-              : headerMinWidths.map(() => 1),
+              : minWidths.map(() => 1),
         });
-        applyWidths(result.widths, result.minWidth);
+        applyWidths(result.widths, result.minWidth, result.overflow);
         applyRows();
+        scheduleOverflowSync();
       };
 
       const applyCustom = () => {
@@ -311,8 +404,12 @@ export function Markdown({
             sum + (Number.isFinite(width) && width > 0 ? width : 0),
           0,
         );
-        table.style.minWidth = total > 0 ? `${Math.ceil(total)}px` : '';
+        const available = Math.max(1, wrapper.clientWidth);
+        const overflow = total > available + 1;
+        table.style.minWidth =
+          overflow && total > 0 ? `${Math.ceil(total)}px` : '';
         applyRows();
+        scheduleOverflowSync();
       };
 
       const apply = () => {
@@ -376,12 +473,14 @@ export function Markdown({
       const closeFullscreen = (restoreFocus = true) => {
         if (!isFullscreen) return;
         isFullscreen = false;
-        block.classList.remove('is-fullscreen');
+        if (mobileQuery.matches) controlsOpen = true;
+        syncActions();
         backdrop?.remove();
         backdrop = null;
         releaseBodyLock();
-        syncActions();
-        if (restoreFocus) fullscreenButton.focus({ preventScroll: true });
+        if (restoreFocus) {
+          actionButtons.fullscreen[0]?.focus({ preventScroll: true });
+        }
       };
 
       const openFullscreen = () => {
@@ -396,7 +495,7 @@ export function Markdown({
             }
           });
         isFullscreen = true;
-        block.classList.add('is-fullscreen');
+        controlsOpen = true;
         document.body.classList.add('has-table-fullscreen');
         backdrop = document.createElement('div');
         backdrop.className = 'table-fullscreen-backdrop';
@@ -408,20 +507,53 @@ export function Markdown({
           const nextMode = mode;
           if (nextMode !== 'custom') applyFit(nextMode);
         });
-        fullscreenButton.focus({ preventScroll: true });
+        closeButton.focus({ preventScroll: true });
       };
 
-      fitButton.addEventListener('click', () => setMode('fit'), { signal });
-      equalButton.addEventListener('click', () => setMode('equal'), { signal });
-      resetButton.addEventListener('click', reset, { signal });
-      fullscreenButton.addEventListener(
-        'click',
-        () => {
-          if (isFullscreen) closeFullscreen();
-          else openFullscreen();
-        },
-        { signal },
+      const onWrapperClick = (event: Event) => {
+        if (!mobileQuery.matches || isFullscreen) return;
+        const target = event.target as HTMLElement | null;
+        if (
+          !target ||
+          target === wrapper ||
+          target.closest('a, button, input, select, textarea, .table-resize')
+        ) {
+          return;
+        }
+        controlsOpen = !controlsOpen;
+        syncActions();
+      };
+      wrapper.addEventListener('click', onWrapperClick, { signal });
+
+      const onMobileLayoutChange = () => {
+        controlsOpen = false;
+        apply();
+      };
+      mobileQuery.addEventListener('change', onMobileLayoutChange);
+      signal.addEventListener('abort', () => {
+        mobileQuery.removeEventListener('change', onMobileLayoutChange);
+      });
+
+      actionButtons.fit.forEach((button) =>
+        button.addEventListener('click', () => setMode('fit'), { signal }),
       );
+      actionButtons.equal.forEach((button) =>
+        button.addEventListener('click', () => setMode('equal'), { signal }),
+      );
+      actionButtons.reset.forEach((button) =>
+        button.addEventListener('click', reset, { signal }),
+      );
+      actionButtons.fullscreen.forEach((button) =>
+        button.addEventListener(
+          'click',
+          () => {
+            if (isFullscreen) closeFullscreen();
+            else openFullscreen();
+          },
+          { signal },
+        ),
+      );
+      closeButton.addEventListener('click', () => closeFullscreen(), { signal });
       block.addEventListener(
         'soffia:close-table-fullscreen',
         () => closeFullscreen(false),
@@ -475,6 +607,7 @@ export function Markdown({
               0,
             );
             table.style.minWidth = `${Math.ceil(total)}px`;
+            scheduleOverflowSync();
           };
           const end = () => {
             window.removeEventListener('pointermove', move);
@@ -507,6 +640,7 @@ export function Markdown({
               0,
             );
             table.style.minWidth = `${Math.ceil(total)}px`;
+            scheduleOverflowSync();
             persist();
           },
           { signal },
@@ -574,6 +708,7 @@ export function Markdown({
         typeof ResizeObserver === 'undefined'
           ? null
           : new ResizeObserver(() => {
+              scheduleOverflowSync();
               if (mode === 'custom' || isResizingRow) return;
               window.cancelAnimationFrame(resizeFrame);
               resizeFrame = window.requestAnimationFrame(() => {
@@ -589,6 +724,7 @@ export function Markdown({
 
       signal.addEventListener('abort', () => {
         window.cancelAnimationFrame(resizeFrame);
+        window.cancelAnimationFrame(overflowFrame);
         resizeObserver?.disconnect();
         closeFullscreen(false);
         backdrop?.remove();
@@ -597,7 +733,7 @@ export function Markdown({
     });
 
     return () => controller.abort();
-  }, [deck?.id, html]);
+  }, [deck?.id, html, settings.fontScale]);
 
   useEffect(() => {
     const node = ref.current;
