@@ -752,12 +752,36 @@
 
 .reader-layout {
   display: grid;
-  grid-template-columns: minmax(0, var(--content-w)) var(--toc-w);
+  grid-template-columns: minmax(0, 1fr) var(--toc-w);
   gap: var(--reader-gap);
   align-items: start;
   width: min(var(--reader-max), 100%);
   margin: 0 auto;
   padding: 46px 32px 100px;
+}
+
+/* En pantallas anchas el aside vertical entra en la misma rejilla centrada. */
+@media (min-width: 1280px) {
+  .reader-layout {
+    grid-template-columns: var(--aside-w) minmax(0, 1fr) var(--toc-w);
+    width: min(var(--reader-wide-max), 100%);
+  }
+
+  .reader-layout > .deck-watermark {
+    position: sticky;
+    top: calc(var(--header-h) + 24px);
+    left: auto;
+    display: flex;
+    align-self: start;
+    align-items: center;
+    justify-content: center;
+    width: var(--aside-w);
+    height: calc(100dvh - var(--header-h) - 48px);
+    max-height: 84vh;
+    overflow: hidden;
+    pointer-events: none;
+    transform: none;
+  }
 }
 
 .deck-content {
@@ -1206,31 +1230,32 @@
   max-height: calc(100dvh - var(--header-h) - 48px);
 }
 
-@media (min-width: 1181px) {
-  .toc {
-    transform: translateX(var(--toc-shift, 0px));
-  }
-}
-
 .toc__drag {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 2;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  padding: 0 0 8px;
+  width: 14px;
   color: var(--fg-4);
-  cursor: grab;
+  cursor: ew-resize;
   touch-action: none;
+  opacity: 0.55;
+  transition: color var(--speed) var(--ease), opacity var(--speed) var(--ease);
 }
 
 .toc__drag:hover,
 .toc__drag:focus-visible,
 .toc__drag.is-dragging {
   color: var(--accent-ink);
+  opacity: 1;
 }
 
 .toc__drag.is-dragging {
-  cursor: grabbing;
+  cursor: ew-resize;
 }
 
 .toc__inner {
@@ -1492,7 +1517,7 @@
 
 @media (max-width: 1180px) {
   .reader-layout {
-    grid-template-columns: minmax(0, var(--content-w));
+    grid-template-columns: minmax(0, 1fr);
     justify-content: center;
     gap: 0;
     width: min(920px, 100%);

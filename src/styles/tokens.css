@@ -32,10 +32,13 @@
 
   --header-h: 64px;
   --control-size: 44px;
-  --content-w: 68ch;
+  --aside-w: 220px;
   --toc-w: 240px;
   --reader-gap: 72px;
   --reader-max: 1120px;
+  --reader-wide-max: calc(
+    var(--reader-max) + var(--aside-w) + var(--reader-gap)
+  );
 
   --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
   --speed: 180ms;

@@ -1,34 +1,24 @@
-import { useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react';
+import {
+  useRef,
+  useState,
+  type PointerEvent as ReactPointerEvent,
+} from 'react';
 import {
   Check,
   ChevronsDown,
   ChevronsUp,
   Download,
-  GripHorizontal,
+  GripVertical,
   List,
   Printer,
   X,
 } from 'lucide-react';
 import type { SectionNode } from '../../lib/format/types';
-
-const TOC_SHIFT_KEY = 'soffia:toc-shift';
-const TOC_SHIFT_MIN = -180;
-const TOC_SHIFT_MAX = 24;
-
-function clampShift(value: number): number {
-  return Math.max(TOC_SHIFT_MIN, Math.min(TOC_SHIFT_MAX, Math.round(value)));
-}
-
-function loadShift(): number {
-  try {
-    const raw = localStorage.getItem(TOC_SHIFT_KEY);
-    if (!raw) return 0;
-    const value = Number(raw);
-    return Number.isFinite(value) ? clampShift(value) : 0;
-  } catch {
-    return 0;
-  }
-}
+import {
+  clampTocWidth,
+  TOC_WIDTH_MAX,
+  TOC_WIDTH_MIN,
+} from '../../lib/reader/tocWidth';
 
 export function Toc({
   sections,
@@ -41,6 +31,8 @@ export function Toc({
   onToggleAll,
   mobileOpen,
   onClose,
+  width,
+  onWidthChange,
 }: {
   sections: SectionNode[];
   activeId: string;
@@ -52,34 +44,19 @@ export function Toc({
   onToggleAll: () => void;
   mobileOpen: boolean;
   onClose: () => void;
+  width: number;
+  onWidthChange: (width: number) => void;
 }) {
   const readCount = sections.filter((section) => readSections.has(section.id)).length;
   const percent = sections.length
     ? Math.round((readCount / sections.length) * 100)
     : 0;
-  const [shift, setShift] = useState(loadShift);
   const [dragging, setDragging] = useState(false);
-  const dragRef = useRef<{ startX: number; startShift: number } | null>(null);
-  const shiftRef = useRef(shift);
-
-  const persistShift = (value: number) => {
-    try {
-      localStorage.setItem(TOC_SHIFT_KEY, String(value));
-    } catch {
-      // Sin persistencia: el desplazamiento dura esta vista.
-    }
-  };
-
-  const applyShift = (value: number): number => {
-    const next = clampShift(value);
-    shiftRef.current = next;
-    setShift(next);
-    return next;
-  };
+  const dragRef = useRef<{ startX: number; startWidth: number } | null>(null);
 
   const onPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
     event.preventDefault();
-    dragRef.current = { startX: event.clientX, startShift: shiftRef.current };
+    dragRef.current = { startX: event.clientX, startWidth: width };
     setDragging(true);
     event.currentTarget.setPointerCapture(event.pointerId);
   };
@@ -87,14 +64,16 @@ export function Toc({
   const onPointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
     const start = dragRef.current;
     if (!start) return;
-    applyShift(start.startShift + event.clientX - start.startX);
+    // Arrastrar hacia la izquierda ensancha el índice.
+    onWidthChange(
+      clampTocWidth(start.startWidth + start.startX - event.clientX),
+    );
   };
 
   const finishDrag = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (!dragRef.current) return;
     dragRef.current = null;
     setDragging(false);
-    persistShift(shiftRef.current);
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId);
     }
@@ -114,35 +93,32 @@ export function Toc({
       <aside
         className={`toc${mobileOpen ? ' is-mobile-open' : ''}`}
         aria-label="Índice del deck"
-        style={{ '--toc-shift': `${shift}px` } as CSSProperties}
       >
-        <div className="toc__inner">
-          <div
-            className={`toc__drag${dragging ? ' is-dragging' : ''}`}
-            role="separator"
-            aria-orientation="horizontal"
-            aria-label="Mover el índice"
-            aria-valuemin={TOC_SHIFT_MIN}
-            aria-valuemax={TOC_SHIFT_MAX}
-            aria-valuenow={shift}
-            tabIndex={0}
-            title="Arrastra o usa ←/→ para mover el índice"
-            onPointerDown={onPointerDown}
-            onPointerMove={onPointerMove}
-            onPointerUp={finishDrag}
-            onPointerCancel={finishDrag}
-            onKeyDown={(event) => {
-              if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
-              event.preventDefault();
-              const next = applyShift(
-                shiftRef.current + (event.key === 'ArrowRight' ? 8 : -8),
-              );
-              persistShift(next);
-            }}
-          >
-            <GripHorizontal size={16} aria-hidden="true" />
-          </div>
+        <div
+          className={`toc__drag${dragging ? ' is-dragging' : ''}`}
+          role="separator"
+          aria-orientation="vertical"
+          aria-label="Cambiar el ancho del índice"
+          aria-valuemin={TOC_WIDTH_MIN}
+          aria-valuemax={TOC_WIDTH_MAX}
+          aria-valuenow={Math.round(width)}
+          tabIndex={0}
+          title="Arrastra o usa ←/→ para cambiar el ancho del índice"
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={finishDrag}
+          onPointerCancel={finishDrag}
+          onKeyDown={(event) => {
+            if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+            event.preventDefault();
+            const delta = event.key === 'ArrowLeft' ? 16 : -16;
+            onWidthChange(clampTocWidth(width + delta));
+          }}
+        >
+          <GripVertical size={14} aria-hidden="true" />
+        </div>
 
+        <div className="toc__inner">
           <div className="toc__top">
             <span className="toc__label">
               <List size={15} aria-hidden="true" />

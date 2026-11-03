@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import {
   ArrowUp,
@@ -16,11 +16,13 @@ import { cloudDownloadDeck } from '../../lib/cloud';
 import { downloadBlob, rfcFileName } from '../../lib/download';
 import type { SectionNode } from '../../lib/format/types';
 import { BlockRenderer } from '../blocks/BlockRenderer';
+import { DeckWatermark } from '../DeckWatermark';
 import { SoffiaMark } from '../SoffiaMark';
 import { DeckHero } from './DeckHero';
 import { DocumentScrollbar } from './DocumentScrollbar';
 import { SectionAccordion } from './SectionAccordion';
 import { Toc } from './Toc';
+import { loadTocWidth, saveTocWidth } from '../../lib/reader/tocWidth';
 
 type AccordionState = {
   sections: Record<string, boolean>;
@@ -70,6 +72,7 @@ export function ReaderView() {
   const [mobileToc, setMobileToc] = useState(false);
   const [showMobileToc, setShowMobileToc] = useState(false);
   const [printing, setPrinting] = useState(false);
+  const [tocWidth, setTocWidth] = useState(loadTocWidth);
 
   const deckId = deck?.id;
 
@@ -86,6 +89,11 @@ export function ReaderView() {
       // La lectura sigue funcionando aunque no haya almacenamiento.
     }
   }, [accordion, deckId]);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => saveTocWidth(tocWidth), 180);
+    return () => window.clearTimeout(timer);
+  }, [tocWidth]);
 
   useEffect(() => {
     if (!printing) return;
@@ -341,7 +349,12 @@ export function ReaderView() {
   const firstSection = doc.sections[0];
 
   return (
-    <div className="reader-layout">
+    <div
+      className="reader-layout"
+      style={{ '--toc-w': `${tocWidth}px` } as CSSProperties}
+    >
+      <DeckWatermark deck={deck} />
+
       <div
         className="reading-progress"
         role="progressbar"
@@ -456,6 +469,8 @@ export function ReaderView() {
         onToggleAll={toggleAll}
         mobileOpen={mobileToc}
         onClose={() => setMobileToc(false)}
+        width={tocWidth}
+        onWidthChange={setTocWidth}
       />
 
       <button
