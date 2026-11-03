@@ -95,6 +95,31 @@ export function ReaderView() {
     return () => window.clearTimeout(timer);
   }, [tocWidth]);
 
+  // Bloquea el scroll del documento mientras el índice es una ventana
+  // emergente; el propio índice conserva su scroll interno.
+  useEffect(() => {
+    if (!mobileToc) return;
+    const root = document.documentElement;
+    const body = document.body;
+    const previousRoot = root.style.overflow;
+    const previousBody = body.style.overflow;
+    root.style.overflow = 'hidden';
+    body.style.overflow = 'hidden';
+    return () => {
+      root.style.overflow = previousRoot;
+      body.style.overflow = previousBody;
+    };
+  }, [mobileToc]);
+
+  useEffect(() => {
+    const desktop = window.matchMedia('(min-width: 1181px)');
+    const closeOnDesktop = () => {
+      if (desktop.matches) setMobileToc(false);
+    };
+    desktop.addEventListener('change', closeOnDesktop);
+    return () => desktop.removeEventListener('change', closeOnDesktop);
+  }, []);
+
   useEffect(() => {
     if (!printing) return;
     let cancelled = false;
