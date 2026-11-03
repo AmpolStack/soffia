@@ -1,7 +1,8 @@
 /*
  * En escritorio ocultamos visualmente la barra nativa, pero conservamos su
- * espacio y su función. La barra del documento se dibuja aparte y aparece
- * solo cuando el puntero se acerca al borde derecho.
+ * espacio y su función. La barra del documento se dibuja sobre el borde
+ * derecho de la columna de lectura y aparece solo cuando el puntero está
+ * sobre el contenido (o sobre la propia barra).
  */
 @media (hover: hover) and (pointer: fine) {
   html.has-doc-scrollbar {
@@ -38,7 +39,7 @@
   right: 3px;
   bottom: 10px;
   z-index: 95;
-  width: 12px;
+  width: 14px;
   border-radius: var(--radius-pill);
   opacity: 0;
   pointer-events: none;
@@ -87,7 +88,8 @@
   cursor: grabbing;
 }
 
-body.has-table-fullscreen .doc-scrollbar {
+body.has-table-fullscreen .doc-scrollbar,
+.toc.is-mobile-open ~ .doc-scrollbar {
   opacity: 0;
   pointer-events: none;
 }

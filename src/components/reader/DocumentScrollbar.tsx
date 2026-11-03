@@ -35,6 +35,17 @@ export function DocumentScrollbar() {
   const measure = useCallback(() => {
     const rail = railRef.current;
     if (!rail) return;
+
+    // La barra se ancla justo a la derecha de la columna de lectura, en el
+    // espacio libre antes del índice, para no tapar el texto.
+    const main = document.querySelector<HTMLElement>('.reader-main');
+    if (main) {
+      const rect = main.getBoundingClientRect();
+      const right = Math.max(0, window.innerWidth - rect.right - 20);
+      const value = `${right}px`;
+      if (rail.style.right !== value) rail.style.right = value;
+    }
+
     const railHeight = rail.getBoundingClientRect().height;
     setMetrics(
       getScrollThumbMetrics({
@@ -66,6 +77,8 @@ export function DocumentScrollbar() {
         : new ResizeObserver(schedule);
     observer?.observe(document.documentElement);
     observer?.observe(document.body);
+    const main = document.querySelector<HTMLElement>('.reader-main');
+    if (main) observer?.observe(main);
     window.addEventListener('scroll', schedule, { passive: true });
     window.addEventListener('resize', schedule);
     schedule();
@@ -80,19 +93,28 @@ export function DocumentScrollbar() {
   }, [measure]);
 
   useEffect(() => {
-    let headerOffset = 64;
-    const updateHeaderOffset = () => {
-      const header = document.querySelector<HTMLElement>('.app-header');
-      headerOffset = header?.getBoundingClientRect().height ?? 64;
-    };
-    updateHeaderOffset();
-
     const onPointerMove = (event: PointerEvent) => {
       if (event.pointerType === 'touch') return;
-      const nearEdge =
-        window.innerWidth - event.clientX <= 28 &&
-        event.clientY >= headerOffset;
-      if (nearEdge || draggingRef.current) {
+      const rail = railRef.current;
+      const main = document.querySelector<HTMLElement>('.reader-main');
+      if (!rail || !main) return;
+
+      const header = document.querySelector<HTMLElement>('.app-header');
+      const headerBottom = header?.getBoundingClientRect().bottom ?? 0;
+      const mainRect = main.getBoundingClientRect();
+      const railRect = rail.getBoundingClientRect();
+      const overContent =
+        event.clientX >= mainRect.left &&
+        event.clientX <= mainRect.right + 28 &&
+        event.clientY >= Math.max(mainRect.top, headerBottom) &&
+        event.clientY <= Math.min(mainRect.bottom, window.innerHeight);
+      const overRail =
+        event.clientX >= railRect.left &&
+        event.clientX <= railRect.right &&
+        event.clientY >= railRect.top &&
+        event.clientY <= railRect.bottom;
+
+      if (overContent || overRail || draggingRef.current) {
         if (!visibleRef.current) setVisibleState(true);
       } else if (!draggingRef.current && visibleRef.current) {
         setVisibleState(false);
@@ -104,11 +126,11 @@ export function DocumentScrollbar() {
     };
 
     window.addEventListener('pointermove', onPointerMove, { passive: true });
-    window.addEventListener('resize', updateHeaderOffset);
+    window.addEventListener('blur', hide);
     document.addEventListener('mouseleave', hide);
     return () => {
       window.removeEventListener('pointermove', onPointerMove);
-      window.removeEventListener('resize', updateHeaderOffset);
+      window.removeEventListener('blur', hide);
       document.removeEventListener('mouseleave', hide);
     };
   }, [setVisibleState]);
