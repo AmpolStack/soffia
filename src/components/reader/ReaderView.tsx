@@ -18,6 +18,7 @@ import type { SectionNode } from '../../lib/format/types';
 import { BlockRenderer } from '../blocks/BlockRenderer';
 import { SoffiaMark } from '../SoffiaMark';
 import { DeckHero } from './DeckHero';
+import { DocumentScrollbar } from './DocumentScrollbar';
 import { SectionAccordion } from './SectionAccordion';
 import { Toc } from './Toc';
 
@@ -341,6 +342,7 @@ export function ReaderView() {
 
   return (
     <div className="reader-layout">
+      <DocumentScrollbar />
       <div
         className="reading-progress"
         role="progressbar"
