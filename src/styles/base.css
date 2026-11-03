@@ -607,6 +607,15 @@ body.has-table-fullscreen {
   .prose .table-wrap table {
     table-layout: auto !important;
     width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .prose .table-wrap col {
+    width: auto !important;
+  }
+
+  .prose .table-wrap tr {
+    height: auto !important;
   }
 }
 
