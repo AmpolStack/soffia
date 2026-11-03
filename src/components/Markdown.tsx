@@ -298,7 +298,8 @@ export function Markdown({
       closeButton.className = 'table-fullscreen-close';
       closeButton.setAttribute('aria-label', 'Salir de pantalla completa');
       closeButton.title = 'Salir de pantalla completa';
-      closeButton.textContent = '×';
+      closeButton.innerHTML =
+        '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
       closeButton.hidden = true;
 
       block.insertBefore(topActions, wrapper);

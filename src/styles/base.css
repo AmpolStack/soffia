@@ -381,7 +381,7 @@ code {
 
 .prose .table-block {
   position: relative;
-  margin: 1.5em 0;
+  margin: 2.2em 0;
 }
 
 .prose .table-block > .table-wrap {
@@ -481,12 +481,12 @@ code {
 
 .table-actions--top {
   bottom: 100%;
-  padding-bottom: 6px;
+  padding-bottom: 8px;
 }
 
 .table-actions--bottom {
   top: 100%;
-  padding-top: 6px;
+  padding-top: 8px;
 }
 
 .table-action,
@@ -538,11 +538,15 @@ code {
   border-radius: 50%;
   background: var(--bg-elevated);
   color: var(--fg-1);
-  font-size: 24px;
-  line-height: 1;
+  line-height: 0;
   cursor: pointer;
   transition: border-color var(--speed) var(--ease),
     background var(--speed) var(--ease), color var(--speed) var(--ease);
+}
+
+.table-fullscreen-close svg {
+  display: block;
+  flex: none;
 }
 
 .table-fullscreen-close:hover {
@@ -637,17 +641,17 @@ body.has-table-fullscreen {
     display: none;
     justify-content: flex-start;
     gap: 6px;
-    padding: 6px 0;
+    padding: 8px 0;
     opacity: 1;
     pointer-events: auto;
   }
 
   .table-actions--top {
-    margin-bottom: 6px;
+    margin-bottom: 8px;
   }
 
   .table-actions--bottom {
-    margin-top: 6px;
+    margin-top: 8px;
   }
 
   .table-block.is-controls-open > .table-actions,
