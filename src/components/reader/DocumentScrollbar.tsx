@@ -36,12 +36,25 @@ export function DocumentScrollbar() {
     const rail = railRef.current;
     if (!rail) return;
 
-    // La barra se ancla justo a la derecha de la columna de lectura, en el
-    // espacio libre antes del índice, para no tapar el texto.
+    // La barra se ancla al hueco inmediatamente a la izquierda del índice.
+    // Si el índice no está en el layout (por ejemplo, en la vista de una
+    // sola columna), se deja un margen amplio respecto al texto.
     const main = document.querySelector<HTMLElement>('.reader-main');
+    const toc = document.querySelector<HTMLElement>('.reader-layout > .toc');
     if (main) {
-      const rect = main.getBoundingClientRect();
-      const right = Math.max(0, window.innerWidth - rect.right - 20);
+      const mainRect = main.getBoundingClientRect();
+      let railRight = mainRect.right + 28;
+
+      if (toc) {
+        const tocRect = toc.getBoundingClientRect();
+        const tocInLayout =
+          tocRect.width > 0 &&
+          tocRect.left > mainRect.right &&
+          tocRect.left < window.innerWidth;
+        if (tocInLayout) railRight = tocRect.left - 6;
+      }
+
+      const right = Math.max(0, window.innerWidth - railRight);
       const value = `${right}px`;
       if (rail.style.right !== value) rail.style.right = value;
     }
@@ -103,9 +116,12 @@ export function DocumentScrollbar() {
       const headerBottom = header?.getBoundingClientRect().bottom ?? 0;
       const mainRect = main.getBoundingClientRect();
       const railRect = rail.getBoundingClientRect();
+      // Incluye el espacio entre el texto y la barra para que no desaparezca
+      // al ir a buscarla con el puntero.
+      const contentRight = Math.max(mainRect.right + 28, railRect.right + 4);
       const overContent =
         event.clientX >= mainRect.left &&
-        event.clientX <= mainRect.right + 28 &&
+        event.clientX <= contentRight &&
         event.clientY >= Math.max(mainRect.top, headerBottom) &&
         event.clientY <= Math.min(mainRect.bottom, window.innerHeight);
       const overRail =
