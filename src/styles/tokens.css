@@ -103,7 +103,8 @@
   --a-900: rgba(255, 255, 255, 0.9);
 
   --header-bg: rgba(0, 0, 0, 0.86);
-  --image-bg: #0b0b0b;
+  /* Fondo neutro para imágenes con transparencia, en ambos temas. */
+  --image-bg: #ffffff;
   --code-bg: #0d0d0d;
   --glow: rgba(255, 255, 255, 0.10);
   --track: rgba(255, 255, 255, 0.12);
@@ -207,7 +208,7 @@
   --a-900: rgba(23, 23, 23, 0.9);
 
   --header-bg: rgba(244, 242, 237, 0.9);
-  --image-bg: #e7e2d9;
+  --image-bg: #ffffff;
   --code-bg: #ece8df;
   --glow: rgba(23, 23, 23, 0.055);
   --track: rgba(23, 23, 23, 0.12);
