@@ -12,6 +12,7 @@ soffia convierte apuntes, seminarios y guías en Markdown en una experiencia de 
 
 - [Qué resuelve](#qué-resuelve)
 - [Qué hace](#qué-hace)
+- [Galería](#galería)
 - [Arquitectura](#arquitectura)
   - [Local-first](#local-first)
   - [Nube privada](#nube-privada)
@@ -70,6 +71,26 @@ No hay cuentas públicas, registro ni telemetría. El modo local no necesita ser
 - **Edita imágenes.** Desde el visor puedes cambiar una imagen por una URL o por un archivo nuevo. Si la anterior era local, se elimina.
 - **Imprime desde el Markdown.** La impresión incluye secciones, imágenes, tablas, respuestas y tarjetas, con un tema claro para papel.
 - **Entrega a agentes.** La skill y el servidor MCP permiten generar y validar decks. La app también publica `/formato` y `/llms.txt`.
+
+## Galería
+
+**Biblioteca.** Importa un deck, filtra por etiquetas y ábrelo desde una sola vista.
+
+<p align="center">
+  <img src="public/soffia-biblioteca.png" alt="Biblioteca de soffia con el importador de decks y la lista de decks filtrable por etiquetas" width="100%" />
+</p>
+
+**Lector.** Título, etiquetas, índice lateral con progreso y accesos a lectura, estudio y quiz rápido.
+
+<p align="center">
+  <img src="public/soffia-lector.png" alt="Lector de soffia con el deck Impétigo, índice lateral, progreso de lectura y botones de estudio" width="100%" />
+</p>
+
+**Repaso espaciado.** Gira la tarjeta y valora el recuerdo para programar el siguiente repaso.
+
+<p align="center">
+  <img src="public/soffia-repaso.png" alt="Modo de repaso espaciado con una tarjeta girada y los botones de valoración Otra vez, Difícil, Bien y Fácil" width="100%" />
+</p>
 
 ## Arquitectura
 
@@ -472,7 +493,10 @@ El flujo [`ci.yml`](.github/workflows/ci.yml) ejecuta en GitHub Actions el typec
 │   ├── _headers
 │   ├── _redirects
 │   ├── favicon.svg
-│   └── llms.txt (generado)
+│   ├── llms.txt (generado)
+│   ├── soffia-biblioteca.png
+│   ├── soffia-lector.png
+│   └── soffia-repaso.png
 ├── scripts/
 │   ├── build-llms.mjs
 │   ├── test-api.mjs
