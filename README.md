@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="brand/soffia-banner.svg" alt="soffia — estudia desde tu Markdown" width="100%" />
+  <img src="brand/soffia-banner.png" alt="soffia — estudia desde tu Markdown" width="100%" />
 </p>
 
 # soffia
