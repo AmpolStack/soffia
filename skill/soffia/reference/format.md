@@ -187,7 +187,7 @@ soffia renderiza Markdown con `markdown-it` en modo seguro (`html: false`).
 
 Funciona:
 
-- párrafos, **negrita**, *cursiva*, `código en línea`, ~~tachado~~;
+- párrafos, **negrita**, *cursiva*, `código en línea`, ~~tachado~~, ==resaltado==;
 - listas ordenadas y no ordenadas;
 - enlaces externos e internos;
 - tablas con cabecera y separador;
@@ -201,6 +201,21 @@ No funciona:
 - **HTML crudo.** Se escapa y se ve como texto. El validador avisa.
 - **Listas de tareas interactivas** en el cuerpo normal. Los `- [ ]` / `- [x]` solo se interpretan dentro de `:::quiz`.
 - **Anexos, notas al pie y extensiones** que no estén en Markdown estándar. Si necesitas una nota, usa un callout.
+
+### Resaltado
+
+```md
+La idea central es ==la identificación temprana== y el tratamiento oportuno.
+```
+
+- `==texto==` se convierte en `<mark class="text-highlight">` con el color de resaltado elegido en Ajustes (azul o verde).
+- El interior admite otras marcas inline: `==Una **idea** clave==`.
+- No interpreta `==` dentro de código en línea ni dentro de bloques de código.
+- Un marcador sin cierre se muestra literal; el validador no lo corrige.
+- Úsalo con moderación: una o dos ideas por sección. No resaltes párrafos completos.
+- No se permite HTML para resaltar. `==texto==` es la única sintaxis.
+
+En el lector, cualquier persona puede seleccionar texto y usar la barra flotante **Resaltar**. Esos resaltados de usuario se guardan por deck en `localStorage`, sobreviven a la navegación y se pueden quitar con **Quitar resaltado**. No modifican el archivo Markdown.
 
 Notas de renderizado:
 

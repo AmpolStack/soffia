@@ -145,6 +145,28 @@ mark {
   color: var(--fg);
 }
 
+mark.text-highlight,
+mark.user-highlight {
+  background: var(--accent-fill);
+  color: var(--accent-on);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+mark.text-highlight::selection,
+mark.user-highlight::selection {
+  background: var(--accent-on);
+  color: var(--accent-fill);
+}
+
+.prose mark.text-highlight a,
+.prose mark.user-highlight a {
+  color: inherit;
+  text-decoration-color: currentColor;
+}
+
 code {
   padding: 0.12em 0.38em;
   border: 1px solid var(--line-soft);

@@ -20,6 +20,7 @@ import { DeckWatermark } from '../DeckWatermark';
 import { SoffiaMark } from '../SoffiaMark';
 import { DeckHero } from './DeckHero';
 import { DocumentScrollbar } from './DocumentScrollbar';
+import { HighlightLayer } from './HighlightLayer';
 import { SectionAccordion } from './SectionAccordion';
 import { Toc } from './Toc';
 import { loadTocWidth, saveTocWidth } from '../../lib/reader/tocWidth';
@@ -509,6 +510,8 @@ export function ReaderView() {
       </button>
 
       <DocumentScrollbar />
+
+      <HighlightLayer key={deck.id} deckId={deck.id} />
     </div>
   );
 }

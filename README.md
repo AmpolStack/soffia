@@ -63,6 +63,7 @@ No hay cuentas públicas, registro ni telemetría. El modo local no necesita ser
 - **Lee con contexto.** Header fijo, título del deck siempre visible, índice lateral, progreso de lectura, búsqueda con `/` y marca de agua vertical con el título.
 - **Pliega secciones y preguntas.** H2/H3 funcionan como acordeones y hay botones **Expandir todo / Colapsar todo** en el índice y en las preguntas.
 - **Marca y desmarca secciones como leídas.** El progreso y el índice se actualizan al instante.
+- **Resalta ideas.** Escribe `==texto==` en el Markdown o selecciona texto en el lector y pulsa **Resaltar**. El fondo usa el color de resaltado de Ajustes (azul o verde). Los resaltados de usuario se guardan por deck en el navegador y se pueden quitar.
 - **Practica.** Quizzes con corrección y explicación, flashcards con SRS, preguntas abiertas y un dashboard de estudio con métricas y sesiones recientes.
 - **Corrige con color.** Las respuestas correctas se muestran en verde y las incorrectas en rojo.
 - **Organiza.** La biblioteca reúne todos los tags y permite filtrarlos con un selector multi-etiqueta y lógica OR.
@@ -381,6 +382,14 @@ La biblioteca reúne todos los tags. El selector **Etiqueta** permite añadir va
 - Pulsa **Restablecer tabla** para borrar el diseño guardado. El botón queda fuera del marco de la tabla.
 
 El ancho mínimo de cada columna tiene en cuenta el encabezado, no solo las celdas. Los encabezados pueden partirse en varias líneas si hace falta.
+
+### Resaltado
+
+- En el Markdown, escribe `==texto==` para resaltar una idea. Se renderiza como `<mark>` y admite **negrita**, *cursiva*, código y enlaces dentro.
+- En el lector, selecciona texto y usa **Resaltar** en la barra flotante. Si la selección ya está resaltada, la acción cambia a **Quitar resaltado**.
+- El fondo usa el color de resaltado elegido en Ajustes: azul o verde.
+- Los resaltados de usuario se guardan por deck en `localStorage`; no modifican el archivo Markdown.
+- No uses HTML para resaltar. `==texto==` funciona con el renderizado seguro de Markdown.
 
 ### Imágenes
 

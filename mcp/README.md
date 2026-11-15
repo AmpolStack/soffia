@@ -4,6 +4,8 @@ Servidor MCP local (stdio) que enseña a cualquier modelo a producir decks compa
 
 La app publica la misma guía en `/formato` (humana, con estilos) y `/llms.txt` (texto plano para `webfetch`).
 
+La guía incluye la sintaxis de resaltado `==texto==`: se renderiza como `<mark>` con el color de resaltado de la app (azul o verde) y no requiere HTML.
+
 ## Qué expone
 
 ### Herramientas

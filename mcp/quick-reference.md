@@ -31,7 +31,7 @@ Introducción breve.
 
 ## Primera sección
 
-Texto explicativo.
+Texto explicativo con ==una idea que conviene recordar==.
 
 ### Un matiz importante
 
@@ -267,7 +267,19 @@ Usa `https://`, títulos descriptivos y una nota de qué aporta cada fuente. No 
 
 ## Markdown normal
 
-Funciona todo el Markdown estándar: párrafos, negrita, cursiva, listas, tablas, blockquotes, enlaces, código y reglas horizontales.
+Funciona todo el Markdown estándar: párrafos, negrita, cursiva, listas, tablas, blockquotes, enlaces, código y reglas horizontales. También funciona el resaltado con `==texto==`.
+
+### Resaltado
+
+```md
+La idea central es ==la identificación temprana== y el tratamiento oportuno.
+```
+
+- `==texto==` se renderiza como `<mark>` con el color de resaltado de la app (azul o verde).
+- Puede contener `**negrita**`, `*cursiva*`, `código` y enlaces.
+- Úsalo con moderación: una o dos ideas por sección, no párrafos completos.
+- No uses HTML para resaltar: `==texto==` es la única sintaxis.
+- En el lector, cualquier persona puede seleccionar texto y pulsar **Resaltar**; esos resaltados se guardan por deck en el navegador.
 
 No funciona:
 
@@ -305,6 +317,7 @@ Antes de entregar:
 - [ ] Quizzes con opciones, correcta y explicación.
 - [ ] Tarjetas con frente y reverso.
 - [ ] Referencias con `https://`.
+- [ ] Resaltados `==texto==` cerrados y reservados para ideas clave.
 - [ ] Al menos una imagen web relevante cuando el tema lo permite, con `alt`, pie y crédito.
 - [ ] Ningún encabezado, bloque, tarjeta, paso, opción o referencia queda vacío.
 - [ ] 0 errores del validador.
