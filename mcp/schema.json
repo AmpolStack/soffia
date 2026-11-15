@@ -15,6 +15,7 @@
     "h3": "subsection of previous h2; accordion",
     "h4h6": "internal heading; not indexed",
     "numbering": "do not write numbers in headings; app auto-numbers",
+    "inlineHighlight": "==text== renders <mark> with the accent highlight color; use sparingly for key ideas",
     "html": false
   },
   "directives": {

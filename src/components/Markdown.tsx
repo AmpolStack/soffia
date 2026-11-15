@@ -812,6 +812,7 @@ export function Markdown({
       className={`prose${compact ? ' prose--compact' : ''}${
         className ? ` ${className}` : ''
       }`}
+      data-highlight-root="true"
       dangerouslySetInnerHTML={{ __html: html }}
     />
   );
@@ -832,6 +833,7 @@ export function InlineMarkdown({
   return (
     <span
       className={className}
+      data-highlight-root="true"
       dangerouslySetInnerHTML={{ __html: html }}
     />
   );

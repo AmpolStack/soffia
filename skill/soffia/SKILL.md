@@ -65,7 +65,7 @@ Introducción breve: qué es, por qué importa y qué se va a aprender.
 
 ## Contexto
 
-Texto de la sección. Puedes usar **negrita**, *cursiva*, listas, tablas, enlaces y bloques de código.
+Texto de la sección. Puedes usar **negrita**, *cursiva*, ==resaltado==, listas, tablas, enlaces y bloques de código.
 
 ### Un matiz importante
 
@@ -122,6 +122,7 @@ Para resolver este tipo de problema.
 - Las tablas deben comparar dimensiones útiles, no ser listas disfrazadas.
 - Los pasos deben ser accionables y estar en orden.
 - Los callouts deben aportar un matiz, una advertencia o una perla; no los uses como decoración.
+- Usa `==texto==` para señalar una o dos ideas clave por sección. No resaltes frases completas ni párrafos enteros.
 - Si el tema es sanitario, jurídico o financiero, prioriza fuentes oficiales y añade la fecha de consulta cuando sea relevante.
 - No prometas resultados ni simplifiques hasta el punto de volver el contenido incorrecto.
 
@@ -146,7 +147,7 @@ El ejemplo `examples/impetigo/seminario.md` del proyecto es la referencia de cal
 3. **H2 = sección; H3 = subsección.** H4–H6 se renderizan como encabezados internos, pero no crean acordeones ni entradas del índice.
 4. **No pongas H3 antes del primer H2.** Quedaría fuera de la estructura de secciones.
 5. **Cierra todos los bloques `:::`.** La línea de cierre es exactamente `:::` en su propia línea.
-6. **No uses HTML.** soffia escapa el HTML; usa Markdown, tablas y los bloques de esta skill.
+6. **No uses HTML.** soffia escapa el HTML; usa Markdown, tablas, `==texto==` para resaltar y los bloques de esta skill.
 7. **No anides quizzes, flashcards, Q&A, referencias, keypoints, galerías ni figuras.** Solo `callout`, `note`, `quote`, `grid` y `steps` están pensados para contener otros bloques.
 8. **Usa IDs estables** en quizzes y tarjetas si quieres conservar el progreso al reimportar.
 9. **Las imágenes web deben ser directas y seguras.** Usa `https://` y una URL que termine en la imagen, no en la página que la contiene.
@@ -370,6 +371,7 @@ Antes de entregar, el comando debe terminar con `0 errores`. Si hay avisos, rev�
 | El índice está vacío | No hay H2 | Convierte las secciones principales en `##` |
 | Los números salen duplicados | El encabezado incluye `1.` o `2.1` | Quita la numeración manual |
 | El HTML aparece como texto | soffia no renderiza HTML | Sustituye por Markdown o bloques |
+| Los `==` se ven como texto | El marcador de resaltado no está cerrado | Cierra con `==` o elimina el marcador |
 | El progreso se reinicia | Cambió el `id` del deck, del quiz o de la tarjeta | Mantén IDs estables o añade IDs explícitos |
 
 ## Checklist de entrega
@@ -384,6 +386,7 @@ Antes de entregar, el comando debe terminar con `0 errores`. Si hay avisos, rev�
 - [ ] Cada quiz tiene pregunta, opciones, una o más correctas y explicación.
 - [ ] Cada tarjeta tiene frente y reverso.
 - [ ] Las referencias son verificables y usan `https://`.
+- [ ] Los resaltados `==texto==` están cerrados y señalan solo ideas clave.
 - [ ] Hay al menos una imagen web relevante cuando el tema lo permite, con `alt`, pie y crédito.
 - [ ] Las imágenes son URLs web directas `https://` o archivos locales aportados por el usuario.
 - [ ] Cada imagen tiene `alt`; las figuras web tienen pie y crédito.

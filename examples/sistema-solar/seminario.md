@@ -34,7 +34,7 @@ Porque nacieron del mismo disco protoplanetario. Al conservar el momento angular
 
 ### Una mirada de escala
 
-Si el Sol tuviera el tamaño de una naranja, la Tierra sería una semilla de amapola a unos 15 metros de distancia. Neptuno estaría a más de 400 metros. Esa comparación ayuda a evitar una idea equivocada: los planetas no están «pegados» al Sol ni entre sí.
+Si el Sol tuviera el tamaño de una naranja, la Tierra sería una semilla de amapola a unos 15 metros de distancia. Neptuno estaría a más de 400 metros. Esa comparación ayuda a evitar una idea equivocada: ==los planetas no están «pegados» al Sol ni entre sí==.
 
 ## El Sol
 

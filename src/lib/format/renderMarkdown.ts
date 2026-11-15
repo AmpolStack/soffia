@@ -1,5 +1,5 @@
 import MarkdownIt from 'markdown-it';
-import type { Token } from 'markdown-it';
+import type { StateInline, Token } from 'markdown-it';
 import { isRemoteImage } from '../images';
 
 export type RenderEnv = {
@@ -17,6 +17,43 @@ const md = new MarkdownIt({
   typographer: true,
   breaks: false,
 });
+
+// `==texto==` se convierte en <mark>. Al tokenizar el interior con las mismas
+// reglas inline, el resaltado puede contener negrita, cursiva o enlaces sin
+// necesidad de permitir HTML crudo.
+function highlightTokenize(state: StateInline, silent: boolean): boolean {
+  const start = state.pos;
+  if (
+    state.src.charCodeAt(start) !== 0x3d ||
+    state.src.charCodeAt(start + 1) !== 0x3d
+  ) {
+    return false;
+  }
+
+  const end = state.src.indexOf('==', start + 2);
+  if (end === -1) return false;
+
+  const content = state.src.slice(start + 2, end);
+  if (!content.trim()) return false;
+  if (silent) return false;
+
+  const children: Token[] = [];
+  state.md.inline.parse(content, state.md, state.env, children);
+
+  const open = state.push('highlight_open', 'mark', 1);
+  open.markup = '==';
+  state.tokens.push(...children);
+  const close = state.push('highlight_close', 'mark', -1);
+  close.markup = '==';
+
+  state.pos = end + 2;
+  return true;
+}
+
+md.inline.ruler.before('emphasis', 'highlight', highlightTokenize);
+
+md.renderer.rules.highlight_open = () => '<mark class="text-highlight">';
+md.renderer.rules.highlight_close = () => '</mark>';
 
 md.validateLink = (url: string) => {
   const normalized = url.trim().toLowerCase();

@@ -283,6 +283,7 @@ function stripMarkdown(value) {
     .replace(/`([^`]+)`/g, '$1')
     .replace(/!\[([^\]]*)\]\([^)]*\)/g, '$1')
     .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
+    .replace(/==([^=]+)==/g, '$1')
     .replace(/[*_~>#]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
@@ -296,6 +297,7 @@ function countWords(body) {
     .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')
     .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
     .replace(/^\s*:::[^\n]*$/gm, ' ')
+    .replace(/==([^=]+)==/g, '$1')
     .replace(/[#>*_~\-]+/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();

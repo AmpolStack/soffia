@@ -12,7 +12,7 @@ cover: images/lesion-costras.svg
 
 # Impétigo
 
-El impétigo es una infección bacteriana superficial de la piel, muy frecuente en la infancia. La clave está en reconocer las lesiones, distinguir las formas clínicas y decidir cuándo el tratamiento tópico es suficiente.
+El impétigo es una infección bacteriana superficial de la piel, ==muy frecuente en la infancia==. La clave está en reconocer las lesiones, distinguir las formas clínicas y decidir cuándo el tratamiento tópico es suficiente.
 
 :::keypoints
 - Es una infección superficial y contagiosa, causada sobre todo por *Staphylococcus aureus* y *Streptococcus pyogenes*.
