@@ -17,6 +17,7 @@ import { useToast } from '../../contexts/ToastContext';
 import { isCloudMode } from '../../contexts/AuthContext';
 import {
   computeDeckStats,
+  computeLastAttempt,
   formatRelativeTime,
   formatSessionDate,
   sessionLabel,
@@ -94,26 +95,126 @@ export function StudyDashboard() {
   const { deck, document: doc, progress, resetProgress } = useDeck();
   const { toast } = useToast();
   const [resetOpen, setResetOpen] = useState(false);
+  const [context, setContext] = useState<'global' | 'last'>('global');
 
   const stats = useMemo(
     () => (doc ? computeDeckStats(doc, progress) : null),
     [doc, progress],
   );
+  const lastAttempt = useMemo(
+    () => computeLastAttempt(progress),
+    [progress],
+  );
 
   if (!deck || !doc || !stats) return null;
+
+  const isLast = context === 'last';
+  const lastQuiz = lastAttempt.quiz;
+  const lastCards = lastAttempt.cards;
+  const lastQa = lastAttempt.qa;
 
   const firstUnread =
     doc.sections.find((section) => !progress.sections[section.id]) ??
     doc.sections[0];
-  const quizMeta = stats.quizAttempts
-    ? `${stats.quizAccuracy}% de precisión en ${stats.quizAttempts} intentos`
-    : `${doc.quizzes.length} preguntas disponibles`;
+  const quizMeta = isLast
+    ? lastQuiz
+      ? `${lastQuiz.accuracy}% en el último intento`
+      : `${doc.quizzes.length} preguntas disponibles`
+    : stats.quizAttempts
+      ? `${stats.quizAccuracy}% de precisión en ${stats.quizAttempts} intentos`
+      : `${doc.quizzes.length} preguntas disponibles`;
+  const cardsMeta = isLast
+    ? lastCards
+      ? `${lastCards.total} tarjetas en el último repaso`
+      : 'Sin repasos todavía'
+    : stats.cardsDue > 0
+      ? `${stats.cardsDue} pendientes hoy`
+      : 'Sin tarjetas pendientes';
+  const qaMeta = isLast
+    ? lastQa
+      ? `${lastQa.revealed} reveladas en la última visita`
+      : 'Sin sesiones todavía'
+    : `${stats.qaRevealed} de ${stats.qaTotal} reveladas`;
   const qaPercent = stats.qaTotal
     ? Math.round((stats.qaRevealed / stats.qaTotal) * 100)
     : 0;
+  const lastQaPercent =
+    lastQa && lastQa.total
+      ? Math.round((lastQa.revealed / lastQa.total) * 100)
+      : 0;
   const cardPercent = stats.cardsTotal
     ? Math.round((stats.cardsReviewed / stats.cardsTotal) * 100)
     : 0;
+
+  const quizMetricValue = isLast
+    ? lastQuiz
+      ? `${lastQuiz.accuracy}%`
+      : '—'
+    : stats.quizAccuracy === null
+      ? '—'
+      : `${stats.quizAccuracy}%`;
+  const quizMetricDetail = isLast
+    ? lastQuiz
+      ? `${lastQuiz.correct} de ${lastQuiz.total} · ${formatRelativeTime(lastQuiz.at)}`
+      : 'Sin intentos todavía'
+    : stats.quizAttempts
+      ? `${stats.quizCorrect} correctas de ${stats.quizAttempts}`
+      : 'Sin intentos todavía';
+
+  const cardsMetricValue = isLast
+    ? lastCards
+      ? `${lastCards.recalled}/${lastCards.total}`
+      : '—'
+    : String(stats.cardsDue);
+  const cardsMetricDetail = isLast
+    ? lastCards
+      ? lastCards.percent === null
+        ? `${lastCards.total} tarjetas valoradas`
+        : `${lastCards.percent}% recordadas · ${formatRelativeTime(lastCards.at)}`
+      : 'Sin repasos todavía'
+    : `${stats.cardsNew} nuevas · ${stats.cardsTotal} en total`;
+
+  const qaMetricValue = isLast
+    ? lastQa
+      ? `${lastQa.revealed}/${lastQa.total}`
+      : '—'
+    : `${stats.qaRevealed}/${stats.qaTotal}`;
+  const qaMetricDetail = isLast
+    ? lastQa
+      ? `${lastQaPercent}% en la última visita`
+      : 'Sin sesiones todavía'
+    : stats.qaTotal
+      ? `${qaPercent}% del total`
+      : 'Sin preguntas';
+
+  const quizPanelValue = isLast
+    ? lastQuiz
+      ? `${lastQuiz.accuracy}%`
+      : '—'
+    : stats.quizAccuracy === null
+      ? '—'
+      : `${stats.quizAccuracy}%`;
+  const quizPanelWidth = isLast
+    ? (lastQuiz?.accuracy ?? 0)
+    : (stats.quizAccuracy ?? 0);
+
+  const cardsPanelValue = isLast
+    ? lastCards
+      ? lastCards.percent === null
+        ? `${lastCards.recalled}/${lastCards.total}`
+        : `${lastCards.percent}%`
+      : '—'
+    : `${cardPercent}%`;
+  const cardsPanelWidth = isLast
+    ? (lastCards?.percent ?? 0)
+    : cardPercent;
+
+  const qaPanelValue = isLast
+    ? lastQa
+      ? `${lastQaPercent}%`
+      : '—'
+    : `${qaPercent}%`;
+  const qaPanelWidth = isLast ? lastQaPercent : qaPercent;
 
   return (
     <div className="study-page">
@@ -129,6 +230,33 @@ export function StudyDashboard() {
             ? 'Un panel para decidir qué repasar ahora. Tu progreso se guarda en tu biblioteca privada.'
             : 'Un panel para decidir qué repasar ahora. Tu progreso se guarda solo en este navegador.'}
         </p>
+        <div className="study-context">
+          <div
+            className="segmented segmented--compact"
+            role="group"
+            aria-label="Contexto de las métricas"
+          >
+            <button
+              type="button"
+              className={`segmented__button${!isLast ? ' is-active' : ''}`}
+              aria-pressed={!isLast}
+              onClick={() => setContext('global')}
+            >
+              Global
+            </button>
+            <button
+              type="button"
+              className={`segmented__button${isLast ? ' is-active' : ''}`}
+              aria-pressed={isLast}
+              onClick={() => setContext('last')}
+            >
+              Último intento
+            </button>
+          </div>
+          <span className="study-context__note">
+            Lectura y racha se muestran siempre en global.
+          </span>
+        </div>
       </header>
 
       <section className="study-overview" aria-label="Resumen de progreso">
@@ -165,24 +293,20 @@ export function StudyDashboard() {
         <div className="study-metrics">
           <Metric
             label="Precisión en quizzes"
-            value={stats.quizAccuracy === null ? '—' : `${stats.quizAccuracy}%`}
-            detail={
-              stats.quizAttempts
-                ? `${stats.quizCorrect} correctas de ${stats.quizAttempts}`
-                : 'Sin intentos todavía'
-            }
+            value={quizMetricValue}
+            detail={quizMetricDetail}
             icon={<Target size={17} />}
           />
           <Metric
-            label="Tarjetas para hoy"
-            value={String(stats.cardsDue)}
-            detail={`${stats.cardsNew} nuevas · ${stats.cardsTotal} en total`}
+            label={isLast ? 'Último repaso de tarjetas' : 'Tarjetas para hoy'}
+            value={cardsMetricValue}
+            detail={cardsMetricDetail}
             icon={<Layers size={17} />}
           />
           <Metric
-            label="Preguntas reveladas"
-            value={`${stats.qaRevealed}/${stats.qaTotal}`}
-            detail={stats.qaTotal ? `${qaPercent}% del total` : 'Sin preguntas'}
+            label={isLast ? 'Última sesión de preguntas' : 'Preguntas reveladas'}
+            value={qaMetricValue}
+            detail={qaMetricDetail}
             icon={<HelpCircle size={17} />}
           />
           <Metric
@@ -211,11 +335,7 @@ export function StudyDashboard() {
             eyebrow="Tarjetas"
             title="Repaso espaciado"
             description="Gira la tarjeta, valora tu recuerdo y programa el próximo repaso."
-            meta={
-              stats.cardsDue > 0
-                ? `${stats.cardsDue} pendientes hoy`
-                : 'Sin tarjetas pendientes'
-            }
+            meta={cardsMeta}
             to={`/deck/${deck.id}/cards`}
             disabled={doc.flashcards.length === 0}
           />
@@ -224,7 +344,7 @@ export function StudyDashboard() {
             eyebrow="Preguntas"
             title="Resuelve dudas"
             description="Preguntas abiertas para explicar con tus propias palabras."
-            meta={`${stats.qaRevealed} de ${stats.qaTotal} reveladas`}
+            meta={qaMeta}
             to={`/deck/${deck.id}/qa`}
             disabled={doc.qa.length === 0}
           />
@@ -254,17 +374,33 @@ export function StudyDashboard() {
               <span className="eyebrow">Rendimiento</span>
               <h2>Quizzes</h2>
             </div>
-            <TrendingUp size={19} aria-hidden="true" />
+            <div className="panel__badges">
+              <span className="chip">{isLast ? 'Último intento' : 'Global'}</span>
+              <TrendingUp size={19} aria-hidden="true" />
+            </div>
           </div>
-          <div className="panel__big-value">
-            {stats.quizAccuracy === null ? '—' : `${stats.quizAccuracy}%`}
-          </div>
+          <div className="panel__big-value">{quizPanelValue}</div>
           <div className="progress-track">
-            <span style={{ width: `${stats.quizAccuracy ?? 0}%` }} />
+            <span style={{ width: `${quizPanelWidth}%` }} />
           </div>
           <div className="panel__legend">
-            <span>{stats.quizAttempts} intentos</span>
-            <span>{stats.quizCorrect} respuestas correctas</span>
+            {isLast ? (
+              lastQuiz ? (
+                <>
+                  <span>
+                    {lastQuiz.correct} de {lastQuiz.total}
+                  </span>
+                  <span>{formatRelativeTime(lastQuiz.at)}</span>
+                </>
+              ) : (
+                <span>Sin intentos todavía</span>
+              )
+            ) : (
+              <>
+                <span>{stats.quizAttempts} intentos</span>
+                <span>{stats.quizCorrect} respuestas correctas</span>
+              </>
+            )}
           </div>
           <Link className="text-link panel__link" to={`/deck/${deck.id}/quiz`}>
             Hacer una sesión
@@ -278,49 +414,72 @@ export function StudyDashboard() {
               <span className="eyebrow">Memoria</span>
               <h2>Tarjetas</h2>
             </div>
-            <Layers size={19} aria-hidden="true" />
+            <div className="panel__badges">
+              <span className="chip">{isLast ? 'Último intento' : 'Global'}</span>
+              <Layers size={19} aria-hidden="true" />
+            </div>
           </div>
-          <div className="panel__big-value">{cardPercent}%</div>
-          <div className="stacked-bar" aria-hidden="true">
-            <span
-              className="stacked-bar__new"
-              style={{
-                width: `${
-                  stats.cardsTotal ? (stats.cardsNew / stats.cardsTotal) * 100 : 0
-                }%`,
-              }}
-            />
-            <span
-              className="stacked-bar__learning"
-              style={{
-                width: `${
-                  stats.cardsTotal
-                    ? (stats.cardsLearning / stats.cardsTotal) * 100
-                    : 0
-                }%`,
-              }}
-            />
-            <span
-              className="stacked-bar__mature"
-              style={{
-                width: `${
-                  stats.cardsTotal
-                    ? (stats.cardsMature / stats.cardsTotal) * 100
-                    : 0
-                }%`,
-              }}
-            />
-          </div>
+          <div className="panel__big-value">{cardsPanelValue}</div>
+          {isLast ? (
+            <div className="progress-track">
+              <span style={{ width: `${cardsPanelWidth}%` }} />
+            </div>
+          ) : (
+            <div className="stacked-bar" aria-hidden="true">
+              <span
+                className="stacked-bar__new"
+                style={{
+                  width: `${
+                    stats.cardsTotal ? (stats.cardsNew / stats.cardsTotal) * 100 : 0
+                  }%`,
+                }}
+              />
+              <span
+                className="stacked-bar__learning"
+                style={{
+                  width: `${
+                    stats.cardsTotal
+                      ? (stats.cardsLearning / stats.cardsTotal) * 100
+                      : 0
+                  }%`,
+                }}
+              />
+              <span
+                className="stacked-bar__mature"
+                style={{
+                  width: `${
+                    stats.cardsTotal
+                      ? (stats.cardsMature / stats.cardsTotal) * 100
+                      : 0
+                  }%`,
+                }}
+              />
+            </div>
+          )}
           <div className="panel__legend panel__legend--wrap">
-            <span>
-              <i className="dot dot--new" /> {stats.cardsNew} nuevas
-            </span>
-            <span>
-              <i className="dot dot--learning" /> {stats.cardsLearning} en curso
-            </span>
-            <span>
-              <i className="dot dot--mature" /> {stats.cardsMature} maduras
-            </span>
+            {isLast ? (
+              lastCards ? (
+                <>
+                  <span>{lastCards.recalled} recordadas</span>
+                  <span>{lastCards.total} valoradas</span>
+                  <span>{formatRelativeTime(lastCards.at)}</span>
+                </>
+              ) : (
+                <span>Sin repasos todavía</span>
+              )
+            ) : (
+              <>
+                <span>
+                  <i className="dot dot--new" /> {stats.cardsNew} nuevas
+                </span>
+                <span>
+                  <i className="dot dot--learning" /> {stats.cardsLearning} en curso
+                </span>
+                <span>
+                  <i className="dot dot--mature" /> {stats.cardsMature} maduras
+                </span>
+              </>
+            )}
           </div>
           <Link className="text-link panel__link" to={`/deck/${deck.id}/cards`}>
             Repasar ahora
@@ -334,15 +493,31 @@ export function StudyDashboard() {
               <span className="eyebrow">Comprensión</span>
               <h2>Preguntas</h2>
             </div>
-            <HelpCircle size={19} aria-hidden="true" />
+            <div className="panel__badges">
+              <span className="chip">{isLast ? 'Último intento' : 'Global'}</span>
+              <HelpCircle size={19} aria-hidden="true" />
+            </div>
           </div>
-          <div className="panel__big-value">{qaPercent}%</div>
+          <div className="panel__big-value">{qaPanelValue}</div>
           <div className="progress-track">
-            <span style={{ width: `${qaPercent}%` }} />
+            <span style={{ width: `${qaPanelWidth}%` }} />
           </div>
           <div className="panel__legend">
-            <span>{stats.qaRevealed} reveladas</span>
-            <span>{stats.qaTotal - stats.qaRevealed} pendientes</span>
+            {isLast ? (
+              lastQa ? (
+                <>
+                  <span>{lastQa.revealed} reveladas</span>
+                  <span>{formatRelativeTime(lastQa.at)}</span>
+                </>
+              ) : (
+                <span>Sin sesiones todavía</span>
+              )
+            ) : (
+              <>
+                <span>{stats.qaRevealed} reveladas</span>
+                <span>{stats.qaTotal - stats.qaRevealed} pendientes</span>
+              </>
+            )}
           </div>
           <Link className="text-link panel__link" to={`/deck/${deck.id}/qa`}>
             Practicar preguntas

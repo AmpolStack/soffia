@@ -1,4 +1,4 @@
-import { ArrowRight, Clock, HelpCircle, Layers, Target, Trash2 } from 'lucide-react';
+import { ArrowRight, BarChart3, Clock, HelpCircle, Layers, Target, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { DeckRecord } from '../../lib/storage/decks';
 import { formatRelativeTime } from '../../lib/stats';
@@ -8,11 +8,13 @@ export function DeckCard({
   index,
   isDemo,
   onDelete,
+  onShowResults,
 }: {
   deck: DeckRecord;
   index: number;
   isDemo: boolean;
   onDelete: () => void;
+  onShowResults: () => void;
 }) {
   return (
     <article className="deck-card">
@@ -61,6 +63,16 @@ export function DeckCard({
           </span>
         </div>
       </Link>
+
+      <button
+        type="button"
+        className="deck-card__results"
+        onClick={onShowResults}
+        aria-label={`Ver resultados de ${deck.title}`}
+        title="Ver resultados de estudio"
+      >
+        <BarChart3 size={16} />
+      </button>
 
       <button
         type="button"

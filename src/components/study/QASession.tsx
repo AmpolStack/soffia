@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -12,14 +12,30 @@ import { useDeck } from '../../contexts/DeckContext';
 import { InlineMarkdown, Markdown } from '../Markdown';
 
 export function QASession() {
-  const { deck, document: doc, progress, recordQaReveal } = useDeck();
+  const { deck, document: doc, progress, recordQaReveal, recordSession } = useDeck();
   const [revealed, setRevealed] = useState<Set<string>>(() => new Set());
   const [recorded, setRecorded] = useState<Set<string>>(
     () => new Set(Object.keys(progress.qa)),
   );
   const [filter, setFilter] = useState<'all' | 'pending'>('all');
+  const visitRevealedRef = useRef<Set<string>>(new Set());
+  const totalRef = useRef(0);
 
   const items = doc?.qa ?? [];
+  totalRef.current = items.length;
+
+  // "Último intento" en preguntas = las preguntas abiertas en la última visita.
+  useEffect(() => {
+    return () => {
+      if (visitRevealedRef.current.size === 0) return;
+      recordSession({
+        type: 'qa',
+        correct: visitRevealedRef.current.size,
+        total: totalRef.current,
+      });
+    };
+  }, [recordSession]);
+
   const visible = useMemo(
     () =>
       filter === 'all'
@@ -62,6 +78,9 @@ export function QASession() {
   }
 
   const toggle = (itemId: string) => {
+    const isOpening = !revealed.has(itemId);
+    if (isOpening) visitRevealedRef.current.add(itemId);
+
     setRevealed((current) => {
       const next = new Set(current);
       if (next.has(itemId)) next.delete(itemId);
@@ -77,6 +96,9 @@ export function QASession() {
 
   const expandAll = () => {
     if (visible.length === 0) return;
+    visible.forEach((item) => {
+      if (!revealed.has(item.id)) visitRevealedRef.current.add(item.id);
+    });
     setRevealed((current) => {
       const next = new Set(current);
       visible.forEach((item) => next.add(item.id));

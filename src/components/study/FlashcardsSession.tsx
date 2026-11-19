@@ -94,7 +94,14 @@ export function FlashcardsSession() {
     setReviewed(nextReviewed);
 
     if (index + 1 >= queue.length) {
-      recordSession({ type: 'cards', total: nextReviewed.length });
+      const nextGood = nextReviewed.filter(
+        (grade) => grade === GRADE_GOOD || grade === GRADE_EASY,
+      ).length;
+      recordSession({
+        type: 'cards',
+        correct: nextGood,
+        total: nextReviewed.length,
+      });
       setPhase('summary');
       return;
     }
