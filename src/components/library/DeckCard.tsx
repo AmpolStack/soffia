@@ -18,19 +18,42 @@ export function DeckCard({
 }) {
   return (
     <article className="deck-card">
-      <Link className="deck-card__main" to={`/deck/${deck.id}`}>
-        <div className="deck-card__top">
-          <span className="deck-card__index">{String(index + 1).padStart(2, '0')}</span>
-          <div className="deck-card__tags">
-            {isDemo ? <span className="chip chip--solid">Ejemplo</span> : null}
-            {deck.tags.slice(0, 3).map((tag) => (
-              <span className="chip" key={tag}>
-                {tag}
-              </span>
-            ))}
-          </div>
+      <div className="deck-card__top">
+        <span className="deck-card__index">{String(index + 1).padStart(2, '0')}</span>
+
+        <div className="deck-card__tags">
+          {isDemo ? <span className="chip chip--solid">Ejemplo</span> : null}
+          {deck.tags.slice(0, 3).map((tag) => (
+            <span className="chip" key={tag}>
+              {tag}
+            </span>
+          ))}
         </div>
 
+        <div className="deck-card__actions">
+          <button
+            type="button"
+            className="deck-card__results"
+            onClick={onShowResults}
+            aria-label={`Ver resultados de ${deck.title}`}
+            title="Ver resultados de estudio"
+          >
+            <BarChart3 size={17} aria-hidden="true" />
+          </button>
+
+          <button
+            type="button"
+            className="deck-card__delete"
+            onClick={onDelete}
+            aria-label={`Eliminar ${deck.title}`}
+            title="Eliminar deck"
+          >
+            <Trash2 size={16} aria-hidden="true" />
+          </button>
+        </div>
+      </div>
+
+      <Link className="deck-card__main" to={`/deck/${deck.id}`}>
         <div className="deck-card__title-wrap">
           <h2 className="deck-card__title">{deck.title}</h2>
           {deck.subtitle ? <p className="deck-card__subtitle">{deck.subtitle}</p> : null}
@@ -56,33 +79,15 @@ export function DeckCard({
         </div>
 
         <div className="deck-card__footer">
-          <span>{deck.summary.sections} secciones · {deck.summary.images} imágenes</span>
+          <span>
+            {deck.summary.sections} secciones · {deck.summary.images} imágenes
+          </span>
           <span className="deck-card__open">
             {formatRelativeTime(deck.lastOpenedAt ?? deck.updatedAt)}
             <ArrowRight size={15} aria-hidden="true" />
           </span>
         </div>
       </Link>
-
-      <button
-        type="button"
-        className="deck-card__results"
-        onClick={onShowResults}
-        aria-label={`Ver resultados de ${deck.title}`}
-        title="Ver resultados de estudio"
-      >
-        <BarChart3 size={16} />
-      </button>
-
-      <button
-        type="button"
-        className="deck-card__delete"
-        onClick={onDelete}
-        aria-label={`Eliminar ${deck.title}`}
-        title="Eliminar deck"
-      >
-        <Trash2 size={16} />
-      </button>
     </article>
   );
 }
