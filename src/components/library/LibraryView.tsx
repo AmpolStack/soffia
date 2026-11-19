@@ -33,6 +33,7 @@ import {
   type DeckRecord,
 } from '../../lib/storage';
 import { DeckCard } from './DeckCard';
+import { DeckResultsModal } from './DeckResultsModal';
 import { ImportPanel } from './ImportPanel';
 import { buildTagIndex, filterDecksByTags, normalizeTag } from '../../lib/tags';
 
@@ -67,6 +68,7 @@ export function LibraryView() {
   const [urlText, setUrlText] = useState('');
   const [dialogError, setDialogError] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<DeckRecord | null>(null);
+  const [resultsDeck, setResultsDeck] = useState<DeckRecord | null>(null);
   const [importErrors, setImportErrors] = useState<ImportItemResult[]>([]);
   const [tagMenuOpen, setTagMenuOpen] = useState(false);
   const tagMenuRef = useRef<HTMLDivElement | null>(null);
@@ -522,6 +524,7 @@ export function LibraryView() {
                   index={index}
                   isDemo={deck.id === DEMO_DECK_ID}
                   onDelete={() => setDeleteTarget(deck)}
+                  onShowResults={() => setResultsDeck(deck)}
                 />
               ))}
             </div>
@@ -667,6 +670,13 @@ export function LibraryView() {
           deshacer.
         </p>
       </Modal>
+
+      {resultsDeck ? (
+        <DeckResultsModal
+          deck={resultsDeck}
+          onClose={() => setResultsDeck(null)}
+        />
+      ) : null}
     </div>
   );
 }

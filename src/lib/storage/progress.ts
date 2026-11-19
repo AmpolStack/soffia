@@ -26,7 +26,9 @@ export type SessionRecord = {
   id: string;
   type: 'quiz' | 'cards' | 'qa';
   at: number;
+  // quiz: aciertos · cards: recordadas (Bien/Fácil) · qa: reveladas en la visita
   correct?: number;
+  // Preguntas del quiz, tarjetas valoradas o preguntas del deck.
   total?: number;
 };
 

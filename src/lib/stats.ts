@@ -1,6 +1,6 @@
 import type { SofiaDocument } from './format/types';
 import { DAY_MS, isDue } from './srs';
-import type { DeckProgress } from './storage/progress';
+import type { DeckProgress, SessionRecord } from './storage/progress';
 
 export type DeckStats = {
   sectionsRead: number;
@@ -81,6 +81,86 @@ export function computeDeckStats(
     sessions: progress.sessions,
     streak: computeStreak(progress, now),
     lastStudiedAt: progress.lastStudiedAt,
+  };
+}
+
+export type LastAttemptStats = {
+  quiz: {
+    correct: number;
+    total: number;
+    accuracy: number;
+    at: number;
+  } | null;
+  cards: {
+    recalled: number;
+    total: number;
+    percent: number | null;
+    at: number;
+  } | null;
+  qa: {
+    revealed: number;
+    total: number;
+    at: number;
+  } | null;
+  lastAt: number | null;
+};
+
+export function latestSessionOfType(
+  progress: DeckProgress,
+  type: SessionRecord['type'],
+): SessionRecord | null {
+  let latest: SessionRecord | null = null;
+  for (const session of progress.sessions) {
+    if (session.type !== type) continue;
+    if (!latest || session.at > latest.at) latest = session;
+  }
+  return latest;
+}
+
+export function computeLastAttempt(progress: DeckProgress): LastAttemptStats {
+  const quiz = latestSessionOfType(progress, 'quiz');
+  const cards = latestSessionOfType(progress, 'cards');
+  const qa = latestSessionOfType(progress, 'qa');
+
+  const quizTotal = quiz?.total ?? 0;
+  const cardTotal = cards?.total ?? 0;
+  const cardRecalled = cards?.correct;
+  const lastAt = [quiz?.at, cards?.at, qa?.at].reduce<number | null>(
+    (latest, at) =>
+      at === undefined ? latest : latest === null || at > latest ? at : latest,
+    null,
+  );
+
+  return {
+    quiz: quiz
+      ? {
+          correct: quiz.correct ?? 0,
+          total: quizTotal,
+          accuracy: quizTotal
+            ? Math.round(((quiz.correct ?? 0) / quizTotal) * 100)
+            : 0,
+          at: quiz.at,
+        }
+      : null,
+    cards: cards
+      ? {
+          recalled: cardRecalled ?? 0,
+          total: cardTotal,
+          percent:
+            cardRecalled !== undefined && cardTotal > 0
+              ? Math.round((cardRecalled / cardTotal) * 100)
+              : null,
+          at: cards.at,
+        }
+      : null,
+    qa: qa
+      ? {
+          revealed: qa.correct ?? 0,
+          total: qa.total ?? 0,
+          at: qa.at,
+        }
+      : null,
+    lastAt,
   };
 }
 
